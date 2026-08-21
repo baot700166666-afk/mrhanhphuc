@@ -75,12 +75,72 @@ phím **←/→** chuyển ảnh, **Space** bật/tắt trình chiếu.
 
 ---
 
+---
+
+## 🔐 Trang quản trị — đăng váy không cần sửa code
+
+Vào bằng link `.../mrhanhphuc/#/admin`, hoặc bấm chữ **Quản trị** ở cuối trang.
+
+**Mã mặc định: `mrhp2026`** — đổi ngay sau khi nhận file (xem bên dưới).
+
+### ⚠️ Đọc kỹ chỗ này
+
+GitHub Pages là **hosting tĩnh, không có máy chủ**. Nghĩa là:
+
+- Đây **không phải đăng nhập thật**. Nó chỉ là khoá tay để nhân viên khỏi bấm nhầm.
+  Ai mở mã nguồn trang đều thấy được. **Đừng để thông tin nhạy cảm trong app.**
+- Sửa trong trang **chưa lưu lên mạng**. Muốn khách thấy thì phải:
+  **sửa → Tải index.html mới → upload đè lên GitHub**.
+- Đóng tab mà chưa tải file là mất hết. Sửa xong tải ngay.
+
+### Quy trình đăng một mẫu váy mới
+
+1. Vào `#/admin`, nhập mã
+2. Bấm **+ Thêm bộ** → điền tên bộ, mã (không dấu), kiểu dáng và giá cho 2 mẫu
+3. Bấm **+ Thêm ảnh** ở từng mẫu → chọn ảnh từ máy (chọn nhiều tấm một lúc được).
+   Ảnh tự cắt về khổ dọc 3:4 và nén còn ~720×960
+4. Bấm **Xong**
+5. Bấm **Tải index.html mới** → upload file đó đè lên GitHub → xong
+
+### Bốn nút xuất
+
+| Nút | Khi nào dùng |
+|---|---|
+| **Tải index.html mới** | Cách chính. Ảnh được nhúng thẳng vào file. Dùng khi tổng ảnh dưới ~8 MB |
+| **Tải ảnh .zip** | Khi ảnh đã nhiều. Giải nén vào repo cạnh `index.html`, ảnh nằm ở `anh/<mã>-1/`, `anh/<mã>-2/` |
+| **Sao chép dữ liệu** | Khi mở file bằng cách nháy đúp (không qua link web). Copy rồi dán đè khối `BO_SUU_TAP` trong `index.html` bằng Notepad |
+| **Xem catalogue** | Quay lại xem thành quả |
+
+> Nút *Tải index.html mới* chỉ chạy khi mở app **qua link web**. Mở file trực tiếp từ ổ đĩa
+> thì trình duyệt chặn, lúc đó dùng *Sao chép dữ liệu*.
+
+### Đổi mã quản trị
+
+Mã được lưu dạng băm SHA-256, không phải chữ thường.
+
+1. Vào https://emn178.github.io/online-tools/sha256.html
+2. Gõ mật khẩu mới → copy chuỗi băm (64 ký tự)
+3. Mở `index.html`, tìm `const MA_QUAN_TRI = '...'` → dán đè chuỗi cũ
+4. Xoá luôn dòng ghi chú `Mật khẩu hiện tại: mrhp2026` phía trên
+
+### Muốn đăng nhập thật, lưu trực tiếp từ điện thoại?
+
+Phải có máy chủ. Ba hướng phổ biến:
+
+- **Decap CMS + Netlify Identity** — miễn phí, có tài khoản riêng cho từng nhân viên, sửa xong tự đẩy lên Git
+- **Google Sheets làm kho dữ liệu** — nhân viên nhập vào Sheet, app đọc trực tiếp. Rẻ, dễ, hợp với studio nhỏ
+- **Firebase / Supabase** — bài bản nhất, có đăng nhập, phân quyền, lưu ảnh
+
+Cần thì nói mình, mình dựng cho.
+
+---
+
 ## 🔄 Cập nhật lên GitHub
 
 Upload đè 3 file `index.html`, `sw.js`, `manifest.webmanifest` vào repo → Commit → đợi 1 phút.
 
 > **Bắt buộc mỗi lần cập nhật:** mở `sw.js` tăng số phiên bản
-> `const CACHE = 'mrhanhphuc-v4';` → `'mrhanhphuc-v5';`
+> `const CACHE = 'mrhanhphuc-v5';` → `'mrhanhphuc-v6';`
 > Không làm thì máy đã cài app vẫn thấy bản cũ.
 
 ## 📱 Cài lên máy nhân viên

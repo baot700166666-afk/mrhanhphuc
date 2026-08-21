@@ -272,6 +272,63 @@ footer{border-top:1px solid var(--line);padding:22px 0 30px;text-align:center;fo
   letter-spacing:.08em;display:block}
 #boot small{display:block;margin-top:12px;font-size:11px;letter-spacing:.18em;
   text-transform:uppercase;color:var(--muted)}
+
+/* ===== quản trị ===== */
+body.admin-mode .tabs,body.admin-mode #searchBox{display:none}
+.ad-login{max-width:400px;margin:6vh auto;text-align:center}
+.ad-login h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(30px,6vw,46px);margin:0}
+.ad-login>p{color:var(--muted);font-size:14px;margin:10px 0 22px}
+.ad-login form{display:flex;gap:8px}
+.ad-login input{flex:1;padding:13px 16px;border:1px solid var(--line);border-radius:100px;
+  background:var(--card);font-size:15px;text-align:center;letter-spacing:.1em}
+.ad-login input:focus{outline:none;border-color:var(--accent)}
+.ad-login input.err{border-color:#C0392B;animation:lac .3s}
+@keyframes lac{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ad-warn{font-size:12px;color:var(--muted);background:var(--bg-2);border-radius:12px;
+  padding:14px 16px;margin:22px 0;line-height:1.6;text-align:left}
+.ad-warn b{color:var(--ink)}
+.ad-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:6px 0 18px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.ad-bar>div:first-child b{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:26px}
+.ad-bar>div:first-child span{font-size:12px;color:var(--muted);margin-left:10px}
+.ad-acts{display:flex;gap:7px;flex-wrap:wrap}
+.ad-acts .btn{padding:9px 15px;font-size:12px}
+.ad-size{font-size:12.5px;color:var(--muted);background:var(--bg-2);padding:10px 14px;
+  border-radius:10px;margin:0 0 16px}
+.ad-size.nang{background:var(--accent-soft);color:var(--accent)}
+.ad-row{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--card)}
+.ad-row.mo{border-color:var(--accent)}
+.ad-head{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;flex-wrap:wrap}
+.ad-head:hover{background:var(--bg-2)}
+.ad-i{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:22px}
+.ad-head b{font-size:14px;font-weight:500;min-width:130px}
+.ad-tag{font-size:11.5px;color:var(--muted);padding:3px 9px;border:1px solid var(--line);border-radius:100px}
+.ad-cx{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.8;margin-left:auto;
+  transition:transform .3s var(--ease)}
+.ad-row.mo .ad-cx{transform:rotate(180deg)}
+.ad-form{padding:4px 14px 16px;border-top:1px solid var(--line)}
+.ad-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.ad-g3{display:grid;grid-template-columns:150px 1fr 1.4fr;gap:10px}
+@media (max-width:700px){.ad-g2,.ad-g3{grid-template-columns:1fr}}
+.ad-form label{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ad-form input:not([type=file]),.ad-form select{width:100%;margin-top:5px;padding:10px 12px;
+  border:1px solid var(--line);border-radius:9px;background:var(--bg);font-size:13.5px}
+.ad-form input:focus,.ad-form select:focus{outline:none;border-color:var(--accent)}
+.ad-fs{border:1px solid var(--line);border-radius:10px;padding:12px 14px 14px;margin:0 0 12px}
+.ad-fs legend{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);padding:0 6px}
+.ad-anh{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.ad-th{position:relative;width:56px;height:75px;border-radius:7px;overflow:hidden;background:var(--bg-2)}
+.ad-th img{width:100%;height:100%;object-fit:cover}
+.ad-th button{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;
+  background:rgba(0,0,0,.6);color:#fff;font-size:13px;line-height:1;display:grid;place-items:center}
+.ad-th span{position:absolute;bottom:2px;left:4px;font-size:9px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.ad-them{width:56px;height:75px;border:1px dashed var(--line);border-radius:7px;display:grid;
+  place-items:center;cursor:pointer;transition:.25s}
+.ad-them:hover{border-color:var(--accent);color:var(--accent)}
+.ad-them span{font-size:10px;text-align:center;letter-spacing:0;text-transform:none;padding:4px}
+.ad-hint{font-size:11.5px;color:var(--muted);margin:10px 0 0}
+.ad-foot{display:flex;justify-content:space-between;gap:10px;margin-top:6px}
+.ad-foot .btn{padding:9px 18px;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -305,7 +362,7 @@ footer{border-top:1px solid var(--line);padding:22px 0 30px;text-align:center;fo
 
 <main><div class="wrap" id="view"></div></main>
 
-<footer><div class="wrap">MR HẠNH PHÚC · Catalogue nội bộ</div></footer>
+<footer><div class="wrap">MR HẠNH PHÚC · Catalogue nội bộ · <a href="#/admin" style="border-bottom:1px solid var(--line)">Quản trị</a></div></footer>
 
 <div class="guest-bar">Chế độ khách — đang ẩn giá <button id="guestOff">Tắt</button></div>
 
@@ -585,6 +642,7 @@ function veAnh(canvas, dang, seed, sttAnh){
   return bc.ten;
 }
 
+/*==DATA-START==*/
 /* ══════════════════════════════════════════════════════════════════════
    ⚙️  KHU VỰC SỬA NỘI DUNG
    50 bộ sưu tập × 2 mẫu váy = 100 mẫu. Mỗi mẫu 10 ảnh.
@@ -596,6 +654,12 @@ function veAnh(canvas, dang, seed, sttAnh){
              ('xoe' | 'chuA' | 'duoica' | 'suong' | 'aodai')
      gia   : 2 mức giá tương ứng
    ══════════════════════════════════════════════════════════════════════ */
+
+/* Mã vào trang quản trị (#/admin). Đây là chuỗi băm SHA-256 của mật khẩu.
+   Mật khẩu hiện tại: mrhp2026
+   ĐỔI MẬT KHẨU: vào https://emn178.github.io/online-tools/sha256.html
+   gõ mật khẩu mới, copy chuỗi băm rồi dán đè vào dòng dưới. */
+const MA_QUAN_TRI = 'f14a29150921dd14051e44ec50daa00e62e8a21bc6cbb212ca121987412d8717';
 
 const DEMO = true;   // true = váy do máy vẽ. Có ảnh thật rồi thì đổi false
                      // (khi false, app đọc ảnh tại  anh/<slug>-<1|2>/1.jpg … 10.jpg)
@@ -669,39 +733,381 @@ const GHI_CHU = {
   aodai:  'Áo dài truyền thống, thêu tay, kèm phụ kiện',
 };
 
+/*==DATA-END==*/
+/* ══════════════════════════════════════════════════════════════════════
+   TRANG QUẢN TRỊ  —  #/admin
+   Web tĩnh không có máy chủ, nên quy trình là:
+     sửa trong trang  →  bấm "Tải index.html mới"  →  upload đè lên GitHub
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+const $=(s,p)=>(p||document).querySelector(s), $$=(s,p)=>[...(p||document).querySelectorAll(s)];
+
+let moKhoa = false;
+let dangSua = null;                     // slug bộ đang mở form
+
+/* ─── kiểm tra mã ─── */
+async function bam(txt){
+  const d = new TextEncoder().encode(txt);
+  const h = await crypto.subtle.digest('SHA-256', d);
+  return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ─── nén ảnh khi tải lên ─── */
+function nenAnh(file, w, h, chatLuong){
+  return new Promise((ok, loi)=>{
+    const fr = new FileReader();
+    fr.onerror = ()=>loi(new Error('Không đọc được file'));
+    fr.onload = ()=>{
+      const im = new Image();
+      im.onerror = ()=>loi(new Error('File không phải ảnh'));
+      im.onload = ()=>{
+        const cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        const c = cv.getContext('2d');
+        // cắt giữa theo tỉ lệ 3:4
+        const tl = w/h, tlA = im.width/im.height;
+        let sw, sh, sx, sy;
+        if(tlA > tl){ sh = im.height; sw = sh*tl; sx = (im.width-sw)/2; sy = 0; }
+        else        { sw = im.width;  sh = sw/tl; sx = 0; sy = (im.height-sh)/2; }
+        c.imageSmoothingQuality = 'high';
+        c.drawImage(im, sx, sy, sw, sh, 0, 0, w, h);
+        ok(cv.toDataURL('image/jpeg', chatLuong));
+      };
+      im.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ─── đo dung lượng ảnh đã tải lên ─── */
+function tongDungLuong(){
+  let b = 0;
+  BO_SUU_TAP.forEach(bo => (bo.anh||[]).forEach(ds => (ds||[]).forEach(u => { if(u) b += u.length*0.75; })));
+  return b;
+}
+const doMB = b => (b/1024/1024).toFixed(1);
+
+/* ─── sinh lại khối dữ liệu để dán vào file ─── */
+function khoiDuLieu(nhungAnh){
+  const dong = BO_SUU_TAP.map(bo=>{
+    const p = [];
+    p.push(`ten:${JSON.stringify(bo.ten)}`);
+    p.push(`slug:${JSON.stringify(bo.slug)}`);
+    p.push(`dang:${JSON.stringify(bo.dang)}`);
+    p.push(`gia:${JSON.stringify(bo.gia)}`);
+    if(bo.ghiChu) p.push(`ghiChu:${JSON.stringify(bo.ghiChu)}`);
+    const coAnh = (bo.anh||[]).some(ds=>(ds||[]).some(Boolean));
+    if(coAnh){
+      if(nhungAnh) p.push(`anh:${JSON.stringify(bo.anh)}`);
+      else         p.push(`anhNgoai:true`);
+    }
+    return '  {' + p.join(', ') + '},';
+  }).join('\n');
+  return `const BO_SUU_TAP = [\n${dong}\n];`;
+}
+
+/* ─── ghi file cho người dùng tải ─── */
+function taiVe(ten, blob){
+  const u = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = u; a.download = ten;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u), 8000);
+}
+
+/* ─── xuất index.html mới ─── */
+async function xuatHTML(nhungAnh){
+  let goc;
+  try{
+    const r = await fetch(location.pathname.endsWith('/') ? location.pathname+'index.html' : location.pathname,
+                          {cache:'no-store'});
+    if(!r.ok) throw 0;
+    goc = await r.text();
+    if(goc.indexOf('/*==DATA-START==*/') < 0) throw 0;
+  }catch(_){
+    window.__toast('Mở file bằng link web mới xuất được. Dùng nút "Sao chép khối dữ liệu" thay thế.');
+    return;
+  }
+  const a = goc.indexOf('/*==DATA-START==*/');
+  const b = goc.indexOf('/*==DATA-END==*/');
+  const giua = goc.slice(a, b);
+  const moi = giua.replace(/const BO_SUU_TAP = \[[\s\S]*?\n\];/, khoiDuLieu(nhungAnh));
+  let ra = goc.slice(0,a) + moi + goc.slice(b);
+  if(nhungAnh || BO_SUU_TAP.some(x=>x.anh)) ra = ra.replace('const DEMO = true;','const DEMO = true;');
+  taiVe('index.html', new Blob([ra], {type:'text/html;charset=utf-8'}));
+  window.__toast('Đã tải index.html — upload đè lên GitHub là xong');
+}
+
+/* ─── ZIP tối giản (không nén, đủ cho GitHub) ─── */
+const crcBang = (()=>{ const t=new Uint32Array(256);
+  for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; }
+  return t; })();
+function crc32(u8){ let c=0xFFFFFFFF; for(let i=0;i<u8.length;i++) c = crcBang[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function b64ToU8(dataUrl){
+  const s = atob(dataUrl.split(',')[1]);
+  const u = new Uint8Array(s.length);
+  for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i);
+  return u;
+}
+function taoZip(files){                         // files: [{ten, data:Uint8Array}]
+  const enc = new TextEncoder(), phan = [], muc = [];
+  let off = 0;
+  files.forEach(f=>{
+    const ten = enc.encode(f.ten), crc = crc32(f.data), n = f.data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0,true);
+    lh.setUint16(8,0,true); lh.setUint16(10,0,true); lh.setUint16(12,0,true);
+    lh.setUint32(14,crc,true); lh.setUint32(18,n,true); lh.setUint32(22,n,true);
+    lh.setUint16(26,ten.length,true); lh.setUint16(28,0,true);
+    phan.push(new Uint8Array(lh.buffer), ten, f.data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true);
+    ch.setUint16(8,0,true); ch.setUint16(10,0,true); ch.setUint16(12,0,true); ch.setUint16(14,0,true);
+    ch.setUint32(16,crc,true); ch.setUint32(20,n,true); ch.setUint32(24,n,true);
+    ch.setUint16(28,ten.length,true); ch.setUint16(30,0,true); ch.setUint16(32,0,true);
+    ch.setUint16(34,0,true); ch.setUint16(36,0,true); ch.setUint32(38,0,true); ch.setUint32(42,off,true);
+    muc.push(new Uint8Array(ch.buffer), ten);
+    off += 30 + ten.length + n;
+  });
+  const cdOff = off;
+  let cdLen = 0; muc.forEach(m=>cdLen += m.length);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(4,0,true); end.setUint16(6,0,true);
+  end.setUint16(8,files.length,true); end.setUint16(10,files.length,true);
+  end.setUint32(12,cdLen,true); end.setUint32(16,cdOff,true); end.setUint16(20,0,true);
+  return new Blob([...phan, ...muc, new Uint8Array(end.buffer)], {type:'application/zip'});
+}
+function xuatZip(){
+  const files = [];
+  BO_SUU_TAP.forEach(bo=>{
+    (bo.anh||[]).forEach((ds,k)=>{
+      (ds||[]).forEach((u,i)=>{ if(u) files.push({ten:`anh/${bo.slug}-${k+1}/${i+1}.jpg`, data:b64ToU8(u)}); });
+    });
+  });
+  if(!files.length) return window.__toast('Chưa có ảnh nào được tải lên');
+  taiVe('anh.zip', taoZip(files));
+  window.__toast(`Đã tải ${files.length} ảnh — giải nén vào repo, cạnh index.html`);
+}
+
+/* ══════════ GIAO DIỆN ══════════ */
+function manDangNhap(){
+  $('#view').innerHTML = `
+    <div class="ad-login">
+      <div class="eyebrow-line"></div>
+      <h1>Quản trị</h1>
+      <p>Nhập mã để vào phần đăng váy.</p>
+      <form id="fLogin">
+        <input id="mk" type="password" placeholder="Mã quản trị" autocomplete="current-password">
+        <button class="btn" type="submit">Mở khoá
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+      <p class="ad-warn">Đây là khoá tay để nhân viên không vào nhầm, <b>không phải bảo mật thật</b>.
+        Web tĩnh nên ai xem mã nguồn cũng đọc được. Đừng để thông tin nhạy cảm ở đây.</p>
+      <a class="back" href="#/"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Về catalogue</a>
+    </div>`;
+  $('#fLogin').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const v = $('#mk').value;
+    if(await bam(v) === MA_QUAN_TRI){ moKhoa = true; manQuanTri(); }
+    else { $('#mk').value=''; $('#mk').classList.add('err'); window.__toast('Mã không đúng'); }
+  });
+  setTimeout(()=>$('#mk')?.focus(), 60);
+}
+
+function manQuanTri(){
+  const mb = tongDungLuong();
+  $('#view').innerHTML = `
+    <div class="ad-bar">
+      <div><b>Quản trị</b> <span>${BO_SUU_TAP.length} bộ · ${BO_SUU_TAP.length*2} mẫu</span></div>
+      <div class="ad-acts">
+        <button class="btn ghost" id="adNew">+ Thêm bộ</button>
+        <button class="btn ghost" id="adCopy">Sao chép dữ liệu</button>
+        <button class="btn ghost" id="adZip">Tải ảnh .zip</button>
+        <button class="btn" id="adHtml">Tải index.html mới
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+        <a class="btn ghost" href="#/">Xem catalogue</a>
+      </div>
+    </div>
+    ${mb > 0 ? `<p class="ad-size ${mb > 8*1024*1024 ? 'nang':''}">Ảnh đã tải lên: <b>${doMB(mb)} MB</b>${
+      mb > 8*1024*1024 ? ' — nặng rồi, nên dùng nút <b>Tải ảnh .zip</b> thay vì nhúng vào file' : ''}</p>` : ''}
+    <div class="ad-list" id="adList"></div>`;
+
+  $('#adNew').addEventListener('click', ()=>{
+    BO_SUU_TAP.unshift({ten:'Bộ mới', slug:'bo-moi-'+(BO_SUU_TAP.length+1),
+      dang:['xoe','chuA'], gia:['0đ','0đ'], anh:[[],[]]});
+    window.__dungLai(); dangSua = BO_SUU_TAP[0].slug; manQuanTri();
+  });
+  $('#adCopy').addEventListener('click', async ()=>{
+    try{ await navigator.clipboard.writeText(khoiDuLieu(true));
+      window.__toast('Đã sao chép — dán đè khối BO_SUU_TAP trong index.html'); }
+    catch(_){ window.__toast('Trình duyệt chặn sao chép'); }
+  });
+  $('#adZip').addEventListener('click', xuatZip);
+  $('#adHtml').addEventListener('click', ()=>xuatHTML(true));
+
+  veDanhSach();
+}
+
+function veDanhSach(){
+  const wrap = $('#adList'); if(!wrap) return;
+  wrap.innerHTML = BO_SUU_TAP.map((bo,i)=>{
+    const mo = dangSua === bo.slug;
+    const soAnh = (bo.anh||[]).map(a=>(a||[]).filter(Boolean).length);
+    return `<div class="ad-row ${mo?'mo':''}" data-slug="${bo.slug}">
+      <div class="ad-head" data-tog="${bo.slug}">
+        <span class="ad-i">${String(i+1).padStart(2,'0')}</span>
+        <b>${bo.ten}</b>
+        <span class="ad-tag">${bo.dang.map(d=>TEN_DANG[d]).join(' · ')}</span>
+        <span class="ad-tag">${bo.gia.join(' / ')}</span>
+        <span class="ad-tag">${soAnh[0]||0}+${soAnh[1]||0} ảnh</span>
+        <svg class="ad-cx" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      ${mo ? formBo(bo, i) : ''}
+    </div>`;
+  }).join('');
+
+  $$('.ad-head', wrap).forEach(h=>h.addEventListener('click', e=>{
+    if(e.target.closest('input,select,button,label')) return;
+    dangSua = dangSua === h.dataset.tog ? null : h.dataset.tog;
+    veDanhSach();
+  }));
+  $$('.ad-form', wrap).forEach(gan);
+}
+
+function formBo(bo, i){
+  return `<div class="ad-form" data-i="${i}">
+    <div class="ad-g2">
+      <label>Tên bộ<input data-f="ten" value="${bo.ten.replace(/"/g,'&quot;')}"></label>
+      <label>Mã (không dấu)<input data-f="slug" value="${bo.slug}"></label>
+    </div>
+    ${[0,1].map(k=>`
+      <fieldset class="ad-fs">
+        <legend>Mẫu ${k===0?'I':'II'}</legend>
+        <div class="ad-g3">
+          <label>Kiểu dáng<select data-f="dang" data-k="${k}">
+            ${Object.entries(TEN_DANG).map(([id,t])=>
+              `<option value="${id}"${bo.dang[k]===id?' selected':''}>${t}</option>`).join('')}
+          </select></label>
+          <label>Giá thuê<input data-f="gia" data-k="${k}" value="${(bo.gia[k]||'').replace(/"/g,'&quot;')}"></label>
+          <label>Ghi chú<input data-f="ghiChu" data-k="${k}"
+            value="${((bo.ghiChu&&bo.ghiChu[k])||'').replace(/"/g,'&quot;')}"
+            placeholder="${GHI_CHU[bo.dang[k]]||''}"></label>
+        </div>
+        <div class="ad-anh" data-k="${k}">
+          ${((bo.anh&&bo.anh[k])||[]).map((u,n)=> u ? `
+            <div class="ad-th"><img src="${u}" alt="">
+              <button data-xoa="${k}:${n}" aria-label="Xoá ảnh">×</button>
+              <span>${n+1}</span></div>` : '').join('')}
+          <label class="ad-them">
+            <input type="file" accept="image/*" multiple data-up="${k}" hidden>
+            <span>+ Thêm ảnh</span>
+          </label>
+        </div>
+        <p class="ad-hint">Tối đa ${SO_ANH} ảnh. Ảnh sẽ tự cắt về khổ dọc 3:4 và nén nhẹ. Chưa có ảnh thì app dùng hình vẽ sẵn.</p>
+      </fieldset>`).join('')}
+    <div class="ad-foot">
+      <button class="btn ghost" data-xoabo="${i}">Xoá bộ này</button>
+      <button class="btn" data-luu="${i}">Xong</button>
+    </div>
+  </div>`;
+}
+
+function gan(form){
+  const i = +form.dataset.i, bo = BO_SUU_TAP[i];
+
+  form.addEventListener('input', e=>{
+    const t = e.target, f = t.dataset.f; if(!f) return;
+    const k = t.dataset.k;
+    if(f==='ten')  bo.ten = t.value;
+    else if(f==='slug') bo.slug = t.value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'');
+    else if(f==='dang') { bo.dang[+k] = t.value; }
+    else if(f==='gia')  { bo.gia[+k] = t.value; }
+    else if(f==='ghiChu'){ bo.ghiChu = bo.ghiChu || ['','']; bo.ghiChu[+k] = t.value; }
+    window.__dungLai();
+  });
+
+  $$('input[data-up]', form).forEach(inp=>{
+    inp.addEventListener('change', async e=>{
+      const k = +inp.dataset.up;
+      bo.anh = bo.anh || [[],[]];
+      bo.anh[k] = bo.anh[k] || [];
+      const fs = [...e.target.files].slice(0, SO_ANH - bo.anh[k].length);
+      if(!fs.length) return window.__toast(`Mẫu này đã đủ ${SO_ANH} ảnh`);
+      window.__toast(`Đang xử lý ${fs.length} ảnh…`);
+      for(const f of fs){
+        try{ bo.anh[k].push(await nenAnh(f, 720, 960, .78)); }
+        catch(err){ window.__toast('Bỏ qua 1 file: '+err.message); }
+      }
+      window.__dungLai(); manQuanTri();
+      window.__toast(`Đã thêm ${fs.length} ảnh`);
+    });
+  });
+
+  $$('[data-xoa]', form).forEach(b=>b.addEventListener('click', ()=>{
+    const [k,n] = b.dataset.xoa.split(':').map(Number);
+    bo.anh[k].splice(n,1); window.__dungLai(); manQuanTri();
+  }));
+
+  const del = $('[data-xoabo]', form);
+  if(del) del.addEventListener('click', ()=>{
+    if(!confirm(`Xoá bộ "${bo.ten}"? Không hoàn tác được.`)) return;
+    BO_SUU_TAP.splice(i,1); dangSua = null; window.__dungLai(); manQuanTri();
+    window.__toast('Đã xoá bộ');
+  });
+  const ok = $('[data-luu]', form);
+  if(ok) ok.addEventListener('click', ()=>{ dangSua = null; manQuanTri(); window.__toast('Đã cập nhật'); });
+}
+
+/* ─── điểm vào ─── */
+window.__admin = function(){
+  if(moKhoa) manQuanTri(); else manDangNhap();
+};
+})();
+
 (function(){
 "use strict";
 const $=(s,p)=>(p||document).querySelector(s), $$=(s,p)=>[...(p||document).querySelectorAll(s)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ────────── dựng 100 mẫu váy từ 50 bộ ────────── */
-const VAY = [];
-BO_SUU_TAP.forEach((bo, i) => {
-  bo.dang.forEach((d, k) => {
-    VAY.push({
-      slug: bo.slug + '-' + (k+1),
-      ten: bo.ten + ' ' + (k===0?'I':'II'),
-      dang: d,
-      dangTen: TEN_DANG[d],
-      bo: bo.slug,
-      boTen: bo.ten,
-      gia: bo.gia[k],
-      ghiChu: GHI_CHU[d],
-      seed: i*2 + k + 1,
-      anh: Array.from({length: SO_ANH}, (_,n)=>n+1)
+/* ────────── bộ nhớ ảnh đã vẽ ────────── */
+const CACHE = new Map();
+const THUTU = [];
+
+/* ────────── dựng danh sách mẫu váy từ các bộ ────────── */
+let VAY = [], BO = [];
+function dungLai(){
+  VAY = [];
+  BO_SUU_TAP.forEach((bo, i) => {
+    bo.dang.forEach((d, k) => {
+      const rieng = (bo.anh && bo.anh[k]) ? bo.anh[k].filter(Boolean) : [];
+      VAY.push({
+        slug: bo.slug + '-' + (k+1),
+        ten: bo.ten + ' ' + (k===0?'I':'II'),
+        dang: d,
+        dangTen: TEN_DANG[d] || d,
+        bo: bo.slug,
+        boTen: bo.ten,
+        gia: bo.gia[k],
+        ghiChu: (bo.ghiChu && bo.ghiChu[k]) || GHI_CHU[d] || '',
+        seed: i*2 + k + 1,
+        anhRieng: rieng,
+        anhNgoai: !!bo.anhNgoai,
+        anh: Array.from({length: rieng.length || SO_ANH}, (_,n)=>n+1)
+      });
     });
   });
-});
-const BO = BO_SUU_TAP.map((b,i)=>({...b, i, vay: VAY.filter(v=>v.bo===b.slug)}));
+  BO = BO_SUU_TAP.map((b,i)=>({...b, i, vay: VAY.filter(v=>v.bo===b.slug)}));
+  CACHE.clear(); THUTU.length = 0;
+}
 const timVay = s => VAY.find(v=>v.slug===s);
 const timBo  = s => BO.find(b=>b.slug===s);
 
 /* ────────── ảnh: vẽ bằng canvas rồi nhớ lại ────────── */
-const CACHE = new Map();
-const THUTU = [];
 function anhURL(v, n){
-  if(!DEMO) return `./anh/${v.slug}/${n}.jpg`;
+  if(v.anhRieng && v.anhRieng[n-1]) return v.anhRieng[n-1];
+  if(v.anhNgoai || !DEMO) return `./anh/${v.slug}/${n}.jpg`;
   const key = v.slug+'|'+n;
   if(CACHE.has(key)) return CACHE.get(key);
   const cv = document.createElement('canvas');
@@ -1047,12 +1453,17 @@ $('#themeBtn').addEventListener('click',()=>{
 function render(){
   const h=location.hash;
   let m;
-  if((m=/^#\/vay\/(.+)$/.exec(h)))      manVay(decodeURIComponent(m[1]));
+  const laAdmin = h.startsWith('#/admin');
+  document.body.classList.toggle('admin-mode', laAdmin);
+  if(laAdmin)                            window.__admin();
+  else if((m=/^#\/vay\/(.+)$/.exec(h))) manVay(decodeURIComponent(m[1]));
   else if((m=/^#\/bo\/(.+)$/.exec(h)))  manBo(decodeURIComponent(m[1]));
   else                                   manBoSuuTap();
-  $('#tabs').closest('.top-in').style.display='';
 }
 addEventListener('hashchange',render);
+window.__toast = toast;
+window.__dungLai = function(){ dungLai(); veTabs(); };
+dungLai();
 veTabs(); render(); syncFav();
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
   const b=$('#boot'); if(b) b.classList.add('done');
