@@ -1,7 +1,7 @@
 /* MR HẠNH PHÚC — service worker
    Cache "app shell" để web mở được cả khi mất mạng và cài được như app.
    Mỗi lần bạn sửa index.html, tăng số CACHE lên (v2, v3...) để khách nhận bản mới. */
-const CACHE = 'mrhanhphuc-v5';
+const CACHE = 'mrhanhphuc-v6';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
                './icon/icon-192.png', './icon/icon-512.png'];
 

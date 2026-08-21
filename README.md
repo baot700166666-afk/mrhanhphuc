@@ -93,6 +93,22 @@ GitHub Pages là **hosting tĩnh, không có máy chủ**. Nghĩa là:
   **sửa → Tải index.html mới → upload đè lên GitHub**.
 - Đóng tab mà chưa tải file là mất hết. Sửa xong tải ngay.
 
+### Sửa / thêm / xoá / đổi thứ tự bộ sưu tập
+
+Tất cả nằm ngay ở danh sách trong `#/admin`:
+
+| Việc | Làm sao |
+|---|---|
+| **Đổi tên bộ** | Bấm nút **SỬA** (hoặc bấm vào dòng) → form mở ra → sửa ô **TÊN BỘ** |
+| **Đổi giá / kiểu dáng / ghi chú** | Cùng form đó, mỗi bộ có 2 khung Mẫu I và Mẫu II |
+| **Thêm bộ mới** | Nút **+ Thêm bộ** ở trên cùng — bộ mới xuất hiện ở đầu danh sách |
+| **Xoá bộ** | Mở form ra → nút **Xoá bộ này** ở góc dưới trái |
+| **Đổi thứ tự** | Hai nút mũi tên **↑ ↓** bên phải mỗi dòng |
+| **Đổi mã (slug)** | Trong form, ô **MÃ (KHÔNG DẤU)**. Đổi mã thì nhớ đổi luôn tên thư mục ảnh tương ứng |
+
+> Sửa xong đừng quên bấm **Tải index.html mới** rồi upload đè lên GitHub. Không làm bước này
+> thì mọi thứ chỉ nằm trong tab đang mở.
+
 ### Quy trình đăng một mẫu váy mới
 
 1. Vào `#/admin`, nhập mã
@@ -140,7 +156,7 @@ Cần thì nói mình, mình dựng cho.
 Upload đè 3 file `index.html`, `sw.js`, `manifest.webmanifest` vào repo → Commit → đợi 1 phút.
 
 > **Bắt buộc mỗi lần cập nhật:** mở `sw.js` tăng số phiên bản
-> `const CACHE = 'mrhanhphuc-v5';` → `'mrhanhphuc-v6';`
+> `const CACHE = 'mrhanhphuc-v6';` → `'mrhanhphuc-v7';`
 > Không làm thì máy đã cài app vẫn thấy bản cũ.
 
 ## 📱 Cài lên máy nhân viên

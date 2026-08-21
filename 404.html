@@ -303,9 +303,31 @@ body.admin-mode .tabs,body.admin-mode #searchBox{display:none}
 .ad-i{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:22px}
 .ad-head b{font-size:14px;font-weight:500;min-width:130px}
 .ad-tag{font-size:11.5px;color:var(--muted);padding:3px 9px;border:1px solid var(--line);border-radius:100px}
-.ad-cx{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.8;margin-left:auto;
+.ad-tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ad-sort{display:flex;gap:3px;margin-left:auto}
+.ad-sort button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--muted);transition:.2s}
+.ad-sort button:hover:not(:disabled){background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ad-sort button:disabled{opacity:.28;cursor:default}
+.ad-sort svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ad-sua{display:flex;align-items:center;gap:4px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);padding:5px 10px;border:1px solid var(--accent);
+  border-radius:100px;white-space:nowrap}
+.ad-cx{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;
   transition:transform .3s var(--ease)}
 .ad-row.mo .ad-cx{transform:rotate(180deg)}
+.ad-row.mo .ad-sua{background:var(--accent);color:#fff}
+@media (max-width:760px){
+  .ad-head{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"i ten sua" ". tags sort";
+    gap:6px 10px;padding:12px}
+  .ad-i{grid-area:i} .ad-head b{grid-area:ten;min-width:0}
+  .ad-tags{grid-area:tags} .ad-sort{grid-area:sort;margin:0} .ad-sua{grid-area:sua}
+  .ad-tag{font-size:10.5px;padding:2px 7px}
+  .ad-bar{flex-direction:column;align-items:stretch}
+  .ad-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .ad-acts .btn{justify-content:center}
+  .ad-form{padding:4px 10px 14px}
+}
 .ad-form{padding:4px 14px 16px;border-top:1px solid var(--line)}
 .ad-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
 .ad-g3{display:grid;grid-template-columns:150px 1fr 1.4fr;gap:10px}
@@ -958,10 +980,19 @@ function veDanhSach(){
       <div class="ad-head" data-tog="${bo.slug}">
         <span class="ad-i">${String(i+1).padStart(2,'0')}</span>
         <b>${bo.ten}</b>
-        <span class="ad-tag">${bo.dang.map(d=>TEN_DANG[d]).join(' · ')}</span>
-        <span class="ad-tag">${bo.gia.join(' / ')}</span>
-        <span class="ad-tag">${soAnh[0]||0}+${soAnh[1]||0} ảnh</span>
-        <svg class="ad-cx" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        <span class="ad-tags">
+          <span class="ad-tag">${bo.dang.map(d=>TEN_DANG[d]).join(' · ')}</span>
+          <span class="ad-tag">${bo.gia.join(' / ')}</span>
+          <span class="ad-tag">${soAnh[0]||0}+${soAnh[1]||0} ảnh</span>
+        </span>
+        <span class="ad-sort">
+          <button data-len="${i}" title="Lên" ${i===0?'disabled':''} aria-label="Đưa lên">
+            <svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></button>
+          <button data-xuong="${i}" title="Xuống" ${i===BO_SUU_TAP.length-1?'disabled':''} aria-label="Đưa xuống">
+            <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+        </span>
+        <span class="ad-sua">${mo?'Đóng':'Sửa'}
+          <svg class="ad-cx" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
       </div>
       ${mo ? formBo(bo, i) : ''}
     </div>`;
@@ -972,7 +1003,16 @@ function veDanhSach(){
     dangSua = dangSua === h.dataset.tog ? null : h.dataset.tog;
     veDanhSach();
   }));
+  $$('[data-len]', wrap).forEach(b=>b.addEventListener('click', ()=>doiCho(+b.dataset.len, -1)));
+  $$('[data-xuong]', wrap).forEach(b=>b.addEventListener('click', ()=>doiCho(+b.dataset.xuong, 1)));
   $$('.ad-form', wrap).forEach(gan);
+}
+
+function doiCho(i, huong){
+  const j = i + huong;
+  if(j < 0 || j >= BO_SUU_TAP.length) return;
+  const t = BO_SUU_TAP[i]; BO_SUU_TAP[i] = BO_SUU_TAP[j]; BO_SUU_TAP[j] = t;
+  window.__dungLai(); veDanhSach();
 }
 
 function formBo(bo, i){
