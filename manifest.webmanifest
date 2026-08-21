@@ -1,0 +1,17 @@
+{
+  "name": "MR HẠNH PHÚC — Bridal & Wedding Studio",
+  "short_name": "MR HẠNH PHÚC",
+  "description": "Studio ảnh cưới & bridal editorial. Portfolio, bộ sưu tập, đặt lịch chụp.",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F7F4EF",
+  "theme_color": "#141110",
+  "icons": [
+    { "src": "./icon/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icon/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./icon/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
