@@ -250,10 +250,33 @@ body.guest .guest-bar{transform:translate(-50%,0)}
 .guest-bar button{color:#fff;text-decoration:underline;font-size:12px}
 footer{border-top:1px solid var(--line);padding:22px 0 30px;text-align:center;font-size:11.5px;
   letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* ===== bộ sưu tập ===== */
+.bo-head{text-align:center;padding:clamp(10px,3vw,26px) 0 clamp(22px,4vw,40px)}
+.bo-head h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;
+  font-size:clamp(34px,6vw,64px);margin:0;line-height:1.08}
+.bo-head p{margin:10px 0 0;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.eyebrow-line{width:44px;height:1px;background:var(--accent);margin:0 auto 18px}
+.albums.two{grid-template-columns:repeat(2,1fr);max-width:900px;margin-inline:auto;gap:clamp(18px,3vw,36px)}
+@media (max-width:600px){.albums.two{grid-template-columns:1fr;max-width:420px}}
+.shots figcaption{text-align:center;padding-top:8px;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)}
+.shot{overflow:visible}
+.shot img{border-radius:var(--r)}
+.shots{align-items:start}
+#boot{position:fixed;inset:0;z-index:999;background:var(--bg);display:grid;place-items:center;
+  transition:opacity .45s,visibility .45s}
+#boot.done{opacity:0;visibility:hidden}
+#boot div{text-align:center}
+#boot b{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(24px,6vw,38px);
+  letter-spacing:.08em;display:block}
+#boot small{display:block;margin-top:12px;font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted)}
 </style>
 </head>
 <body>
 
+<div id="boot"><div><b>MR HẠNH PHÚC</b><small>Đang dựng catalogue…</small></div></div>
 <header class="top">
   <div class="tools-l">
     <button class="ic" id="searchBtn" aria-label="Tìm váy"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg></button>
@@ -326,51 +349,325 @@ footer{border-top:1px solid var(--line);padding:22px 0 30px;text-align:center;fo
 
 <div id="toast"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span id="toastTxt"></span></div>
 
+
+
+</html>
 <script>
+/* ══════════════════════════════════════════════════════════════
+   BỘ VẼ VÁY — tạo ảnh ngay trên trình duyệt, không cần file ảnh
+   Mỗi (mẫu váy, số thứ tự ảnh) cho ra một bố cục / góc máy khác nhau.
+   Không dùng ctx.filter (blur) vì rất chậm — độ mềm tạo bằng gradient.
+   ══════════════════════════════════════════════════════════════ */
+const RW = 720, RH = 960;
+
+function rng(seed){
+  let a = seed >>> 0;
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const lerp = (a,b,t)=>a+(b-a)*t;
+
+/* dáng váy: waist = eo, hem = gấu, exp = độ cong, wy = vị trí eo */
+const DANG_HINH = {
+  xoe:    {waist:.052, hem:.46,  exp:.60, wy:.34},
+  chuA:   {waist:.050, hem:.28,  exp:.95, wy:.32},
+  duoica: {waist:.048, hem:.33,  exp:2.6, wy:.30},
+  suong:  {waist:.052, hem:.115, exp:1.3, wy:.30},
+  aodai:  {waist:.046, hem:.105, exp:1.1, wy:.30},
+};
+
+/* bảng màu phông: [đỉnh, đáy, quầng sáng] */
+const PHONG = [
+  ['#EDE5DA','#C2B3A3','#FBF6EE'], ['#E6DCCF','#B0A395','#F6EFE5'],
+  ['#F1E9DE','#CBB9A6','#FEFAF4'], ['#DFD9D1','#A9A096','#F4F0EA'],
+  ['#F3EADC','#D0BCA4','#FFFBF5'], ['#E2D6C6','#B7A48F','#F9F2E8'],
+  ['#E4E1DC','#ADA9A2','#F7F5F1'], ['#EFE3D3','#C3AB90','#FCF6EC'],
+  ['#DDD4C8','#A79C8D','#F3ECE3'], ['#F0E6DE','#C7B2A6','#FDF7F2'],
+];
+
+/* 10 bố cục — mỗi ảnh một khung hình / góc máy khác nhau */
+const BOCUC = [
+  {ten:'Toàn thân',     cam:[0,0,1,1],              scale:1.00, dx:0,    sang:.55, beam:0},
+  {ten:'Lệch trái',     cam:[0,0,1,1],              scale:0.92, dx:-.13, sang:.30, beam:0},
+  {ten:'Nắng cửa sổ',   cam:[0,0,1,1],              scale:0.96, dx:.10,  sang:.72, beam:1},
+  {ten:'Trung cảnh',    cam:[.133,.30,.733,.733],   scale:1.00, dx:0,    sang:.50, beam:0},
+  {ten:'Cận thân trên', cam:[.291,.125,.418,.418],  scale:1.00, dx:0,    sang:.62, beam:0},
+  {ten:'Chân váy',      cam:[.167,.583,.667,.667],  scale:1.00, dx:0,    sang:.42, beam:0},
+  {ten:'Toàn cảnh',     cam:[0,0,1,1],              scale:0.78, dx:0,    sang:.38, beam:0},
+  {ten:'Góc thấp',      cam:[.111,.392,.778,.778],  scale:1.06, dx:.04,  sang:.58, beam:0},
+  {ten:'Cận nếp vải',   cam:[.367,.50,.30,.30],     scale:1.00, dx:0,    sang:.50, beam:0},
+  {ten:'Ngược sáng',    cam:[0,0,1,1],              scale:0.98, dx:-.05, sang:.84, beam:2},
+];
+
+/* ô nhiễu tạo một lần rồi dùng lại */
+let _nhieu = null;
+function oNhieu(){
+  if(_nhieu) return _nhieu;
+  const n = document.createElement('canvas');
+  n.width = n.height = 96;
+  const nc = n.getContext('2d');
+  const im = nc.createImageData(96,96), d = im.data;
+  for(let i=0;i<d.length;i+=4){
+    const v = 112 + Math.random()*32;
+    d[i]=d[i+1]=d[i+2]=v; d[i+3]=255;
+  }
+  nc.putImageData(im,0,0);
+  return (_nhieu = n);
+}
+
+/* đường viền thân váy */
+function duongVay(ctx, dang, seed, cx, topY, botY, scale){
+  const P = DANG_HINH[dang] || DANG_HINH.chuA;
+  const N = 72, Lx = [], Rx = [], Y = [];
+  for(let i=0;i<=N;i++){
+    const t = i/N;
+    let hw;
+    if(t < P.wy){ const u = t/P.wy; hw = lerp(.098, P.waist, Math.pow(u,.75)); }
+    else        { const u = (t-P.wy)/(1-P.wy); hw = lerp(P.waist, P.hem, Math.pow(u,P.exp)); }
+    if(t > .55) hw *= 1 + .012*Math.sin(t*26 + seed);
+    const w = hw*RW*scale;
+    Lx.push(cx-w); Rx.push(cx+w); Y.push(lerp(topY, botY, t));
+  }
+  const nw = .098*RW*scale;
+  ctx.beginPath();
+  ctx.moveTo(Lx[0], Y[0]);
+  for(let i=1;i<=N;i++) ctx.lineTo(Lx[i], Y[i]);
+  ctx.lineTo(Rx[N], Y[N]);
+  for(let i=N-1;i>=0;i--) ctx.lineTo(Rx[i], Y[i]);
+  ctx.quadraticCurveTo(cx + nw*.52, topY + nw*.62, cx, topY + nw*.34);
+  ctx.quadraticCurveTo(cx - nw*.52, topY + nw*.62, Lx[0], Y[0]);
+  ctx.closePath();
+  return {nw, hemW: Rx[N]-cx, waistY: lerp(topY, botY, P.wy)};
+}
+
+/* nếp vải mềm: quad dọc tô bằng gradient ngang trong suốt hai mép */
+function nepVai(c, x0, y0, x1, y1, w0, w1, mau, dam){
+  const g = c.createLinearGradient(x1 - w1, 0, x1 + w1, 0);
+  g.addColorStop(0,   mau.replace('$', '0'));
+  g.addColorStop(.5,  mau.replace('$', dam));
+  g.addColorStop(1,   mau.replace('$', '0'));
+  c.fillStyle = g;
+  c.beginPath();
+  c.moveTo(x0 - w0, y0); c.lineTo(x0 + w0, y0);
+  c.lineTo(x1 + w1, y1); c.lineTo(x1 - w1, y1);
+  c.closePath(); c.fill();
+}
+
+/* vẽ một tấm ảnh vào canvas đích */
+function veAnh(canvas, dang, seed, sttAnh){
+  const bc  = BOCUC[sttAnh % BOCUC.length];
+  const rnd = rng(seed*977 + sttAnh*31 + 7);
+  const pal = PHONG[(seed + sttAnh*3) % PHONG.length];
+
+  const off = document.createElement('canvas');
+  off.width = RW; off.height = RH;
+  const c = off.getContext('2d');
+
+  /* 1. phông nền */
+  let g = c.createLinearGradient(0,0,0,RH);
+  g.addColorStop(0, pal[0]); g.addColorStop(1, pal[1]);
+  c.fillStyle = g; c.fillRect(0,0,RW,RH);
+
+  const gx = RW*bc.sang, gy = RH*.22;
+  g = c.createRadialGradient(gx, gy, 0, gx, gy, RH*.80);
+  g.addColorStop(0, pal[2]); g.addColorStop(1, 'rgba(255,255,255,0)');
+  c.globalAlpha = .85; c.fillStyle = g; c.fillRect(0,0,RW,RH); c.globalAlpha = 1;
+
+  /* 2. nắng cửa sổ / ngược sáng */
+  if(bc.beam === 1){
+    c.save(); c.translate(RW*.70, 0); c.rotate(.14);
+    [[-70,150],[112,60]].forEach(([x,w])=>{
+      const bg2 = c.createLinearGradient(x, 0, x+w, 0);
+      bg2.addColorStop(0,'rgba(255,250,238,0)');
+      bg2.addColorStop(.5,'rgba(255,250,238,.55)');
+      bg2.addColorStop(1,'rgba(255,250,238,0)');
+      c.fillStyle = bg2; c.fillRect(x, -60, w, RH*1.25);
+    });
+    c.restore();
+  } else if(bc.beam === 2){
+    g = c.createRadialGradient(RW*.5, RH*.34, 0, RW*.5, RH*.34, RH*.42);
+    g.addColorStop(0,'rgba(255,251,244,.72)'); g.addColorStop(1,'rgba(255,251,244,0)');
+    c.fillStyle = g; c.fillRect(0,0,RW,RH);
+  }
+
+  const topY = RH*.17, botY = RH*.90;
+  const cx = RW*(.5 + bc.dx), sc = bc.scale;
+
+  /* 3. vệt sàn + bóng đổ */
+  g = c.createLinearGradient(0, botY, 0, botY + RH*.05);
+  g.addColorStop(0,'rgba(138,124,110,.16)'); g.addColorStop(1,'rgba(138,124,110,0)');
+  c.fillStyle = g; c.fillRect(0, botY, RW, RH*.05);
+
+  const hemG = (DANG_HINH[dang]||DANG_HINH.chuA).hem * RW * sc * 1.3;
+  c.save();
+  c.translate(cx, botY + RH*.018); c.scale(1, .11);
+  g = c.createRadialGradient(0,0,0, 0,0, hemG);
+  g.addColorStop(0,'rgba(96,84,72,.50)'); g.addColorStop(1,'rgba(96,84,72,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(0,0,hemG,0,7); c.fill();
+  c.restore();
+
+  /* 4. thân váy */
+  const info = duongVay(c, dang, seed, cx, topY, botY, sc);
+  c.save(); c.clip();
+
+  g = c.createLinearGradient(cx - info.hemW, 0, cx + info.hemW, 0);
+  g.addColorStop(0,'#DBD2C6'); g.addColorStop(.32,'#F5F1EA');
+  g.addColorStop(.60,'#FFFEFC'); g.addColorStop(1,'#E0D7CA');
+  c.fillStyle = g; c.fillRect(0,0,RW,RH);
+
+  g = c.createLinearGradient(0, RH*.42, 0, RH*.95);
+  g.addColorStop(0,'rgba(118,102,86,0)'); g.addColorStop(1,'rgba(118,102,86,.22)');
+  c.fillStyle = g; c.fillRect(0,0,RW,RH);
+
+  const soNep = 8 + Math.floor(rnd()*4);
+  for(let i=0;i<soNep;i++){
+    const ox = cx + (rnd()-.5)*.50*RW;
+    const y0 = RH*(.33 + rnd()*.12);
+    const spread = .5 + rnd()*1.1;
+    const w0 = 5 + rnd()*10, w1 = w0*(1.6 + rnd()*1.8);
+    const sang = rnd() < .5;
+    nepVai(c, ox, y0, ox + (ox-cx)*spread, botY, w0, w1,
+           sang ? 'rgba(255,255,255,$)' : 'rgba(146,128,110,$)',
+           sang ? (.20+rnd()*.22).toFixed(2) : (.10+rnd()*.14).toFixed(2));
+  }
+
+  // đai eo
+  g = c.createLinearGradient(0, info.waistY - RH*.012, 0, info.waistY + RH*.024);
+  g.addColorStop(0,'rgba(190,172,150,0)'); g.addColorStop(.5,'rgba(190,172,150,.55)');
+  g.addColorStop(1,'rgba(190,172,150,0)');
+  c.fillStyle = g;
+  c.fillRect(cx - RW*.085*sc, info.waistY - RH*.012, RW*.17*sc, RH*.036);
+
+  // xẻ tà áo dài
+  if(dang === 'aodai'){
+    const sy = lerp(topY, botY, .60);
+    g = c.createLinearGradient(cx - 7, 0, cx + 7, 0);
+    g.addColorStop(0,'rgba(118,102,86,0)'); g.addColorStop(.5,'rgba(118,102,86,.34)');
+    g.addColorStop(1,'rgba(118,102,86,0)');
+    c.fillStyle = g; c.fillRect(cx - 7, sy, 14, botY - sy);
+  }
+  c.restore();
+
+  /* 5. viền sáng */
+  duongVay(c, dang, seed, cx, topY, botY, sc);
+  g = c.createLinearGradient(cx - info.hemW, 0, cx + info.hemW, 0);
+  g.addColorStop(0,'rgba(255,255,255,.15)'); g.addColorStop(.7,'rgba(255,255,255,.75)');
+  g.addColorStop(1,'rgba(255,255,255,.25)');
+  c.strokeStyle = g; c.lineWidth = 1.8; c.stroke();
+
+  /* 6. vignette */
+  g = c.createRadialGradient(RW*.5, RH*.44, RH*.32, RW*.5, RH*.5, RH*.84);
+  g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(58,47,39,.20)');
+  c.fillStyle = g; c.fillRect(0,0,RW,RH);
+
+  /* 7. dấu thương hiệu */
+  c.font = '500 12px Inter, system-ui, sans-serif';
+  c.fillStyle = 'rgba(255,255,255,.45)';
+  c.fillText('M R   H Ạ N H   P H Ú C', 20, RH - 20);
+
+  /* 8. cắt khung theo bố cục */
+  const [fx,fy,fw,fh] = bc.cam;
+  canvas.width = RW; canvas.height = RH;
+  const t = canvas.getContext('2d');
+  t.imageSmoothingQuality = 'high';
+  t.drawImage(off, fx*RW, fy*RH, fw*RW, fh*RH, 0, 0, RW, RH);
+
+  /* 9. hạt phim */
+  t.globalAlpha = .26; t.globalCompositeOperation = 'overlay';
+  t.fillStyle = t.createPattern(oNhieu(), 'repeat');
+  t.fillRect(0, 0, RW, RH);
+  t.globalAlpha = 1; t.globalCompositeOperation = 'source-over';
+
+  return bc.ten;
+}
+
 /* ══════════════════════════════════════════════════════════════════════
-   ⚙️  KHU VỰC DUY NHẤT BẠN CẦN SỬA
-   ══════════════════════════════════════════════════════════════════════
+   ⚙️  KHU VỰC SỬA NỘI DUNG
+   50 bộ sưu tập × 2 mẫu váy = 100 mẫu. Mỗi mẫu 10 ảnh.
 
-   CÁCH THÊM MỘT MẪU VÁY:
-   1. Tạo thư mục:  anh/<maVay>/
-   2. Bỏ ảnh vào, đặt tên theo số:  1.jpg  2.jpg  3.jpg ...
-      (ảnh 1.jpg sẽ được dùng làm ảnh bìa)
-   3. Thêm 1 dòng vào danh sách VAY bên dưới. Xong!
-
-   Ý nghĩa các cột:
-     ten     : tên hiển thị
-     dm      : mã danh mục (phải trùng 1 mã trong DANH_MUC)
-     thuMuc  : tên thư mục chứa ảnh trong anh/
-     soAnh   : có bao nhiêu tấm (1.jpg → soAnh.jpg)
-     gia     : giá thuê — để '' nếu không muốn hiện
-     ghiChu  : mô tả ngắn — để '' nếu không cần
-     ngay    : ngày cập nhật — để '' nếu không cần
+   THÊM / SỬA MỘT BỘ: sửa 1 dòng trong BO_SUU_TAP bên dưới.
+     ten   : tên bộ
+     slug  : mã không dấu, dùng cho đường dẫn + tên thư mục ảnh
+     dang  : 2 kiểu dáng của 2 mẫu trong bộ
+             ('xoe' | 'chuA' | 'duoica' | 'suong' | 'aodai')
+     gia   : 2 mức giá tương ứng
    ══════════════════════════════════════════════════════════════════════ */
 
-const DEMO = false;   // ← Đang dùng ảnh mẫu. Có ảnh thật rồi thì đổi thành false
+const DEMO = true;   // true = váy do máy vẽ. Có ảnh thật rồi thì đổi false
+                     // (khi false, app đọc ảnh tại  anh/<slug>-<1|2>/1.jpg … 10.jpg)
 
-const DANH_MUC = [
-  {id:'all',    ten:'Tất cả'},
-  {id:'vayxoe', ten:'Váy xòe'},
-  {id:'vayom',  ten:'Váy ôm'},
-  {id:'vaynhe', ten:'Váy nhẹ'},
-  {id:'aodai',  ten:'Áo dài'},
+const SO_ANH = 10;   // số ảnh mỗi mẫu
+
+const TEN_DANG = {xoe:'Xòe', chuA:'Chữ A', duoica:'Đuôi cá', suong:'Suông', aodai:'Áo dài'};
+
+const BO_SUU_TAP = [
+  {ten:'Viên Mãn',    slug:'vienman',    dang:['xoe','duoica'],   gia:['12.500.000đ','9.800.000đ']},
+  {ten:'Trăm Năm',    slug:'tramnam',    dang:['xoe','chuA'],     gia:['11.800.000đ','7.500.000đ']},
+  {ten:'Duyên Lành',  slug:'duyenlanh',  dang:['chuA','suong'],   gia:['6.900.000đ','5.200.000đ']},
+  {ten:'Sắt Son',     slug:'satson',     dang:['xoe','aodai'],    gia:['13.200.000đ','3.800.000đ']},
+  {ten:'Vẹn Nguyên',  slug:'vennguyen',  dang:['duoica','chuA'],  gia:['8.600.000đ','6.400.000đ']},
+  {ten:'An Nhiên',    slug:'annhien',    dang:['suong','chuA'],   gia:['4.900.000đ','5.800.000đ']},
+  {ten:'Bình An',     slug:'binhan',     dang:['suong','duoica'], gia:['4.500.000đ','8.200.000đ']},
+  {ten:'Nguyện Ước',  slug:'nguyenuoc',  dang:['duoica','xoe'],   gia:['9.200.000đ','12.000.000đ']},
+  {ten:'Hỷ Tín',      slug:'hytin',      dang:['aodai','aodai'],  gia:['3.500.000đ','4.200.000đ']},
+  {ten:'Sum Vầy',     slug:'sumvay',     dang:['aodai','chuA'],   gia:['2.900.000đ','6.100.000đ']},
+
+  {ten:'Mây Trắng',   slug:'maytrang',   dang:['xoe','chuA'],     gia:['10.500.000đ','6.800.000đ']},
+  {ten:'Nắng Mai',    slug:'nangmai',    dang:['chuA','suong'],   gia:['6.200.000đ','4.700.000đ']},
+  {ten:'Sương Sớm',   slug:'suongsom',   dang:['suong','chuA'],   gia:['4.400.000đ','5.900.000đ']},
+  {ten:'Trăng Rằm',   slug:'trangram',   dang:['xoe','duoica'],   gia:['11.200.000đ','8.900.000đ']},
+  {ten:'Hương Cau',   slug:'huongcau',   dang:['aodai','suong'],  gia:['3.300.000đ','4.800.000đ']},
+  {ten:'Lụa Là',      slug:'lualaa',     dang:['suong','duoica'], gia:['5.100.000đ','8.400.000đ']},
+  {ten:'Ngọc Trai',   slug:'ngoctrai',   dang:['xoe','chuA'],     gia:['13.800.000đ','7.200.000đ']},
+  {ten:'Pha Lê',      slug:'phale',      dang:['xoe','duoica'],   gia:['14.500.000đ','10.200.000đ']},
+  {ten:'Kim Ngân',    slug:'kimngan',    dang:['duoica','aodai'], gia:['9.600.000đ','4.100.000đ']},
+  {ten:'Bạch Ngọc',   slug:'bachngoc',   dang:['xoe','suong'],    gia:['12.900.000đ','5.400.000đ']},
+
+  {ten:'Thanh Tân',   slug:'thanhtan',   dang:['chuA','suong'],   gia:['6.500.000đ','4.600.000đ']},
+  {ten:'Tơ Hồng',     slug:'tohong',     dang:['aodai','xoe'],    gia:['3.900.000đ','11.500.000đ']},
+  {ten:'Hồng Duyên',  slug:'hongduyen',  dang:['chuA','duoica'],  gia:['7.100.000đ','8.700.000đ']},
+  {ten:'Phượng Cầm',  slug:'phuongcam',  dang:['aodai','aodai'],  gia:['4.400.000đ','5.000.000đ']},
+  {ten:'Loan Phượng', slug:'loanphuong', dang:['xoe','aodai'],    gia:['13.500.000đ','4.700.000đ']},
+  {ten:'Uyên Ương',   slug:'uyenuong',   dang:['duoica','chuA'],  gia:['9.400.000đ','6.700.000đ']},
+  {ten:'Sen Hồng',    slug:'senhong',    dang:['chuA','aodai'],   gia:['6.300.000đ','3.600.000đ']},
+  {ten:'Mộc Lan',     slug:'moclan',     dang:['suong','chuA'],   gia:['4.800.000đ','6.000.000đ']},
+  {ten:'Bạch Liên',   slug:'bachlien',   dang:['xoe','suong'],    gia:['11.900.000đ','5.300.000đ']},
+  {ten:'Nhã An',      slug:'nhaan',      dang:['suong','duoica'], gia:['4.700.000đ','8.100.000đ']},
+
+  {ten:'Tường Vy',    slug:'tuongvy',    dang:['chuA','xoe'],     gia:['6.600.000đ','12.200.000đ']},
+  {ten:'Thảo Nguyên', slug:'thaonguyen', dang:['chuA','suong'],   gia:['5.700.000đ','4.300.000đ']},
+  {ten:'Diệu Kỳ',     slug:'dieuky',     dang:['xoe','duoica'],   gia:['14.000.000đ','9.900.000đ']},
+  {ten:'Thuỷ Chung',  slug:'thuychung',  dang:['duoica','aodai'], gia:['8.800.000đ','4.000.000đ']},
+  {ten:'Đồng Tâm',    slug:'dongtam',    dang:['aodai','chuA'],   gia:['3.700.000đ','6.900.000đ']},
+  {ten:'Giao Bôi',    slug:'giaoboi',    dang:['xoe','chuA'],     gia:['12.600.000đ','7.400.000đ']},
+  {ten:'Hợp Cẩn',     slug:'hopcan',     dang:['aodai','suong'],  gia:['4.300.000đ','5.600.000đ']},
+  {ten:'Vu Quy',      slug:'vuquy',      dang:['aodai','aodai'],  gia:['5.200.000đ','6.200.000đ']},
+  {ten:'Tân Nương',   slug:'tannuong',   dang:['xoe','duoica'],   gia:['13.100.000đ','9.500.000đ']},
+  {ten:'Nghi Gia',    slug:'nghigia',    dang:['chuA','aodai'],   gia:['7.000.000đ','4.500.000đ']},
+
+  {ten:'Cát Tường',   slug:'cattuong',   dang:['xoe','suong'],    gia:['12.400.000đ','5.500.000đ']},
+  {ten:'Phú Quý',     slug:'phuquy',     dang:['xoe','duoica'],   gia:['14.800.000đ','10.600.000đ']},
+  {ten:'Vinh Hoa',    slug:'vinhhoa',    dang:['duoica','chuA'],  gia:['9.700.000đ','7.300.000đ']},
+  {ten:'Thịnh Vượng', slug:'thinhvuong', dang:['xoe','aodai'],    gia:['13.600.000đ','5.800.000đ']},
+  {ten:'Khánh Hỷ',    slug:'khanhhy',    dang:['aodai','xoe'],    gia:['4.600.000đ','11.400.000đ']},
+  {ten:'Long Phụng',  slug:'longphung',  dang:['aodai','aodai'],  gia:['6.800.000đ','7.600.000đ']},
+  {ten:'Tình Thâm',   slug:'tinhtham',   dang:['suong','chuA'],   gia:['5.000.000đ','6.100.000đ']},
+  {ten:'Bách Niên',   slug:'bachnien',   dang:['xoe','chuA'],     gia:['12.100.000đ','7.800.000đ']},
+  {ten:'Vĩnh Kết',    slug:'vinhket',    dang:['duoica','suong'], gia:['8.500.000đ','4.900.000đ']},
+  {ten:'Chung Đôi',   slug:'chungdoi',   dang:['chuA','duoica'],  gia:['6.400.000đ','9.100.000đ']},
 ];
 
-const VAY = [
-  {ten:'Hạnh Phúc', dm:'vayxoe', thuMuc:'hanhphuc', soAnh:6, gia:'12.000.000đ', ghiChu:'Váy signature — xòe lớn, tùng 5 lớp, đuôi 2m', ngay:'10/08/2026'},
-  {ten:'Viên Mãn', dm:'vayxoe', thuMuc:'vienman', soAnh:6, gia:'9.500.000đ', ghiChu:'Xòe cổ điển, đính pha lê thủ công', ngay:'02/07/2026'},
-  {ten:'Mây Trắng', dm:'vayxoe', thuMuc:'maytrang', soAnh:6, gia:'8.000.000đ', ghiChu:'Tulle bồng bềnh, trễ vai mềm', ngay:'18/06/2026'},
-  {ten:'Nguyện Ước', dm:'vayom', thuMuc:'nguyenuoc', soAnh:6, gia:'7.200.000đ', ghiChu:'Dáng đuôi cá, ôm eo tôn dáng', ngay:'25/05/2026'},
-  {ten:'Trăm Năm', dm:'vaynhe', thuMuc:'tramnam', soAnh:6, gia:'6.500.000đ', ghiChu:'Chữ A cơ bản, hợp mọi vóc dáng', ngay:'14/05/2026'},
-  {ten:'An Nhiên', dm:'vaynhe', thuMuc:'annhien', soAnh:6, gia:'5.500.000đ', ghiChu:'Nhẹ, thoáng, dễ di chuyển cả ngày', ngay:'30/04/2026'},
-  {ten:'Duyên Lành', dm:'vaynhe', thuMuc:'duyenlanh', soAnh:6, gia:'4.800.000đ', ghiChu:'Tối giản, vai vuông, thanh lịch', ngay:'12/04/2026'},
-  {ten:'Bình An', dm:'vaynhe', thuMuc:'binhan', soAnh:6, gia:'4.200.000đ', ghiChu:'Dáng suông, kín đáo, đi lễ nhà thờ', ngay:'03/04/2026'},
-  {ten:'Hỷ Tín', dm:'aodai', thuMuc:'hytin', soAnh:6, gia:'3.500.000đ', ghiChu:'Áo dài cô dâu, gấm thêu tay, kèm mấn', ngay:'20/03/2026'},
-  {ten:'Sum Vầy', dm:'aodai', thuMuc:'sumvay', soAnh:6, gia:'2.800.000đ', ghiChu:'Áo dài bê tráp, đủ size S–XL', ngay:'20/03/2026'},
-];
-
-/* ══════════ Hết khu vực cần sửa ══════════ */
+const GHI_CHU = {
+  xoe:    'Tùng xòe nhiều lớp, đuôi dài, dáng công chúa',
+  chuA:   'Dáng chữ A cơ bản, hợp mọi vóc dáng',
+  duoica: 'Ôm eo, xòe từ gối, tôn đường cong',
+  suong:  'Dáng suông tối giản, nhẹ, dễ di chuyển',
+  aodai:  'Áo dài truyền thống, thêu tay, kèm phụ kiện',
+};
 
 (function(){
 "use strict";
@@ -378,78 +675,107 @@ const $=(s,p)=>(p||document).querySelector(s), $$=(s,p)=>[...(p||document).query
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---- ảnh ---- */
-const PAL=[['#E0CDBA','#F5EDE4','#A48D79'],['#D2BFB4','#F0E6DD','#8F7A6C'],['#DCC7B4','#F6F0E8','#AC9280'],
-           ['#CBB9AA','#F1E9DF','#84705F'],['#E6D6C4','#F9F4ED','#B79E85'],['#C4B3A4','#EDE4D9','#8E7A6B']];
-function ph(k,w,h){
-  const p=PAL[Math.abs(k|0)%PAL.length];
-  return 'data:image/svg+xml,'+encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs>`+
-    `<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${p[0]}"/>`+
-    `<stop offset=".55" stop-color="${p[1]}"/><stop offset="1" stop-color="${p[2]}"/></linearGradient>`+
-    `<radialGradient id="v" cx=".48" cy=".34" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".35"/>`+
-    `<stop offset="1" stop-color="#3a2f27" stop-opacity=".28"/></radialGradient></defs>`+
-    `<rect width="${w}" height="${h}" fill="url(#g)"/><rect width="${w}" height="${h}" fill="url(#v)"/></svg>`);
+/* ────────── dựng 100 mẫu váy từ 50 bộ ────────── */
+const VAY = [];
+BO_SUU_TAP.forEach((bo, i) => {
+  bo.dang.forEach((d, k) => {
+    VAY.push({
+      slug: bo.slug + '-' + (k+1),
+      ten: bo.ten + ' ' + (k===0?'I':'II'),
+      dang: d,
+      dangTen: TEN_DANG[d],
+      bo: bo.slug,
+      boTen: bo.ten,
+      gia: bo.gia[k],
+      ghiChu: GHI_CHU[d],
+      seed: i*2 + k + 1,
+      anh: Array.from({length: SO_ANH}, (_,n)=>n+1)
+    });
+  });
+});
+const BO = BO_SUU_TAP.map((b,i)=>({...b, i, vay: VAY.filter(v=>v.bo===b.slug)}));
+const timVay = s => VAY.find(v=>v.slug===s);
+const timBo  = s => BO.find(b=>b.slug===s);
+
+/* ────────── ảnh: vẽ bằng canvas rồi nhớ lại ────────── */
+const CACHE = new Map();
+const THUTU = [];
+function anhURL(v, n){
+  if(!DEMO) return `./anh/${v.slug}/${n}.jpg`;
+  const key = v.slug+'|'+n;
+  if(CACHE.has(key)) return CACHE.get(key);
+  const cv = document.createElement('canvas');
+  veAnh(cv, v.dang, v.seed, n-1);
+  const url = cv.toDataURL('image/jpeg', .82);
+  CACHE.set(key, url); THUTU.push(key);
+  while(THUTU.length > 240) CACHE.delete(THUTU.shift());
+  return url;
 }
-addEventListener('error',e=>{
-  const t=e.target;
-  if(!t||t.tagName!=='IMG'||t.dataset.fb) return;
-  t.dataset.fb='1'; const d=(t.dataset.ph||'0|900|1200').split('|');
-  t.src=ph(+d[0],+d[1],+d[2]); t.classList.add('ready');
-},true);
+function tenBoCuc(n){ return BOCUC[(n-1) % BOCUC.length].ten; }
 
-/* Đường dẫn ảnh: anh/<thuMuc>/<n>.jpg  — hoặc ảnh demo khi DEMO=true */
-function src(v,n,w,h){
-  if(!DEMO) return `./anh/${v.thuMuc}/${n}.jpg`;
-  return `https://picsum.photos/seed/${v.thuMuc}${n}/${w}/${h}`;
+/* hàng đợi vẽ: mỗi khung hình chỉ dựng vài tấm, tránh treo giao diện */
+const hangDoi = [];
+let dangChay = false;
+function xepHang(fn){ hangDoi.push(fn); if(!dangChay){ dangChay = true; requestAnimationFrame(chay); } }
+function chay(){
+  const han = performance.now() + 14;      // giữ dưới ~1 khung hình
+  while(hangDoi.length && performance.now() < han) hangDoi.shift()();
+  if(hangDoi.length) requestAnimationFrame(chay); else dangChay = false;
 }
 
-/* dựng dữ liệu */
-const DATA = VAY.map((v,i)=>({
-  ...v, i, slug:v.thuMuc,
-  anh: Array.from({length:Math.max(1,v.soAnh|0)},(_,k)=>k+1)
-}));
-const catName = id => (DANH_MUC.find(c=>c.id===id)||{}).ten || id;
+/* nạp ảnh khi cuộn tới, tránh dựng cả 1000 tấm một lúc */
+const lazyIO = new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const el = e.target; lazyIO.unobserve(el);
+    const v = timVay(el.dataset.v), n = +el.dataset.n || 1;
+    xepHang(()=>{
+      const im = el.tagName==='IMG' ? el : $('img', el);
+      if(!im || !v) return;
+      im.onload = ()=>im.classList.add('ready');
+      im.onerror = ()=>im.classList.add('ready');
+      im.src = anhURL(v, n);
+      if(im.complete) im.classList.add('ready');
+    });
+  });
+},{rootMargin:'500px 0px'});
 
-/* ---- toast ---- */
+const revIO = new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ e.target.classList.add('in'); revIO.unobserve(e.target); }
+}),{threshold:.04, rootMargin:'0px 0px -4% 0px'});
+
+/* ────────── thông báo ────────── */
 let tT; function toast(m){ $('#toastTxt').textContent=m; $('#toast').classList.add('on');
   clearTimeout(tT); tT=setTimeout(()=>$('#toast').classList.remove('on'),2500); }
 
-/* ---- reveal ---- */
-const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);} }),
-  {threshold:.05,rootMargin:'0px 0px -5% 0px'});
-
-/* ---- ảnh blur-up ---- */
-function img(el){ if(el.complete&&el.naturalWidth) el.classList.add('ready');
-  else el.addEventListener('load',()=>el.classList.add('ready'),{once:true}); }
-
-/* ══════════ YÊU THÍCH ══════════ */
+/* ────────── yêu thích ────────── */
 const favs=new Set();
 function toggleFav(slug,quiet){
   favs.has(slug)?favs.delete(slug):favs.add(slug);
-  syncFav(); if(!quiet) toast(favs.has(slug)?'Đã lưu vào danh sách khách thích ♥':'Đã bỏ khỏi danh sách');
+  syncFav(); if(!quiet) toast(favs.has(slug)?'Đã lưu vào váy khách thích ♥':'Đã bỏ khỏi danh sách');
 }
 function syncFav(){
   const b=$('#favBadge'); b.textContent=favs.size; b.classList.toggle('on',favs.size>0);
   $('#drCount').textContent=favs.size?`(${favs.size})`:'';
-  $$('.heart').forEach(h=>{const on=favs.has(h.dataset.slug);h.classList.toggle('on',on);h.setAttribute('aria-pressed',on);});
+  $$('.heart').forEach(h=>{const on=favs.has(h.dataset.slug);
+    h.classList.toggle('on',on); h.setAttribute('aria-pressed',on);});
   drawFav();
 }
 function drawFav(){
   const body=$('#drBody');
   if(!favs.size){
     body.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg>
-      <div>Chưa chọn mẫu nào.<br>Bấm ♥ trên mẫu váy khách ưng để lưu lại.</div></div>`;
+      <div>Chưa chọn mẫu nào.<br>Bấm ♥ trên mẫu khách ưng để lưu lại.</div></div>`;
     return;
   }
-  body.innerHTML=DATA.filter(v=>favs.has(v.slug)).map(v=>`
+  body.innerHTML = VAY.filter(v=>favs.has(v.slug)).map(v=>`
     <div class="dr-row" data-go="${v.slug}">
-      <img src="${src(v,1,160,210)}" data-ph="${v.i}|160|210" alt="">
-      <div><b>${v.ten}</b>${v.gia?`<small class="price">${v.gia}</small>`:''}
-        <small class="note" style="color:var(--muted);display:block">${v.ghiChu||''}</small></div>
+      <img alt="" src="${anhURL(v,1)}">
+      <div><b>${v.ten}</b>
+        <small class="price">${v.gia}</small>
+        <small class="note" style="color:var(--muted);display:block">${v.dangTen} · ${v.boTen}</small></div>
       <button data-rm="${v.slug}" aria-label="Bỏ"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>`).join('');
-  $$('.dr-row img',body).forEach(img);
   $$('.dr-row',body).forEach(r=>r.addEventListener('click',e=>{
     const rm=e.target.closest('[data-rm]');
     if(rm){ toggleFav(rm.dataset.rm); return; }
@@ -465,86 +791,119 @@ $('#drClear').addEventListener('click',()=>{favs.clear();syncFav();toast('Đã x
 $('#drCopy').addEventListener('click',async()=>{
   if(!favs.size) return toast('Chưa chọn mẫu nào');
   const d=new Date(), p=n=>String(n).padStart(2,'0');
-  const lines=DATA.filter(v=>favs.has(v.slug))
-    .map((v,k)=>`${k+1}. ${v.ten}${v.gia?' — '+v.gia:''}${v.ghiChu?' ('+v.ghiChu+')':''}`);
+  const lines=VAY.filter(v=>favs.has(v.slug))
+    .map((v,k)=>`${k+1}. ${v.ten} (${v.dangTen}) — ${v.gia}`);
   const txt=`MR HẠNH PHÚC — Váy khách thích\n${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}\n\n`+lines.join('\n');
   try{ await navigator.clipboard.writeText(txt); toast('Đã sao chép — dán vào Zalo được rồi'); }
   catch(_){ toast('Trình duyệt chặn sao chép, bạn chụp màn hình nhé'); }
 });
 
-/* ══════════ TABS ══════════ */
-let cat='all', kw='';
-function drawTabs(){
-  $('#tabs').innerHTML=DANH_MUC.map(c=>{
-    const n = c.id==='all'?DATA.length:DATA.filter(v=>v.dm===c.id).length;
-    return `<button class="tab${c.id===cat?' on':''}" data-c="${c.id}">${c.ten}${n?` (${n})`:''}</button>`;
+/* ────────── tìm kiếm + lọc dáng ────────── */
+let kw='', locDang='all';
+function hopLe(v){
+  if(locDang!=='all' && v.dang!==locDang) return false;
+  if(!kw) return true;
+  return (v.ten+' '+v.boTen+' '+v.dangTen+' '+v.gia+' '+v.ghiChu).toLowerCase().includes(kw);
+}
+$('#searchBtn').addEventListener('click',()=>{
+  const b=$('#searchBox'); b.classList.toggle('open');
+  if(b.classList.contains('open')) $('#q').focus();
+  else { kw=''; $('#q').value=''; render(); }
+});
+let qT; $('#q').addEventListener('input',e=>{
+  clearTimeout(qT); qT=setTimeout(()=>{ kw=e.target.value.trim().toLowerCase();
+    if(location.hash.startsWith('#/vay/')) location.hash='#/'; else render(); },240);
+});
+$('#qClear').addEventListener('click',()=>{ $('#q').value=''; kw=''; $('#q').focus(); render(); });
+
+function veTabs(){
+  const ds=[['all','Tất cả dáng']].concat(Object.entries(TEN_DANG));
+  $('#tabs').innerHTML = ds.map(([id,ten])=>{
+    const n = id==='all' ? VAY.length : VAY.filter(v=>v.dang===id).length;
+    return `<button class="tab${id===locDang?' on':''}" data-d="${id}">${ten} (${n})</button>`;
   }).join('');
   $$('#tabs .tab').forEach(t=>t.addEventListener('click',()=>{
-    cat=t.dataset.c; drawTabs(); home();
-    $('#tabs .tab.on')?.scrollIntoView({inline:'center',block:'nearest',behavior:RM?'auto':'smooth'});
+    locDang=t.dataset.d; veTabs(); render();
   }));
 }
 
-/* ══════════ MÀN HÌNH: DANH SÁCH VÁY ══════════ */
-function match(v){
-  if(cat!=='all' && v.dm!==cat) return false;
-  if(!kw) return true;
-  const s=(v.ten+' '+(v.ghiChu||'')+' '+catName(v.dm)+' '+(v.gia||'')).toLowerCase();
-  return s.includes(kw);
-}
-function home(){
-  $('#tabs').parentElement.parentElement.style.display='';
-  const list=DATA.filter(match);
+/* ══════════ MÀN 1 — 50 BỘ SƯU TẬP ══════════ */
+function manBoSuuTap(){
+  const dsBo = BO.map(b=>({...b, hop: b.vay.filter(hopLe)})).filter(b=>b.hop.length);
   const v=$('#view');
-  if(!list.length){
+  if(!dsBo.length){
     v.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
-      <div>Không tìm thấy mẫu nào${kw?` cho “${kw}”`:''}.</div></div>`;
+      <div>Không tìm thấy bộ nào${kw?` cho “${kw}”`:''}.</div></div>`;
     return;
   }
-  v.innerHTML=`<p class="count-line">${list.length} mẫu${cat!=='all'?' · '+catName(cat):''}${kw?' · tìm: '+kw:''}</p>
-    <div class="albums">`+list.map(a=>`
-      <article class="alb" data-go="${a.slug}">
-        <div class="alb-img">
-          <img src="${src(a,1,900,1200)}" data-ph="${a.i}|900|1200" alt="${a.ten}" loading="lazy">
-          <button class="heart" data-slug="${a.slug}" aria-label="Khách thích ${a.ten}" aria-pressed="false">
-            <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg>
-          </button>
-          <span class="alb-n"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 15 5-5 4 4 3-3 6 6"/></svg>${a.anh.length}</span>
-        </div>
-        <div class="alb-meta"><h3>${a.ten}</h3>
-          ${a.gia?`<span class="price">${a.gia}</span>`:''}
-          ${a.ghiChu?`<span class="note">${a.ghiChu}</span>`:''}
-        </div>
-      </article>`).join('')+`</div>`;
+  const tongVay = dsBo.reduce((s,b)=>s+b.hop.length,0);
+  v.innerHTML = `<p class="count-line">${dsBo.length} bộ sưu tập · ${tongVay} mẫu váy</p>
+    <div class="albums">` + dsBo.map(b=>{
+    const v1=b.hop[0];
+    return `<article class="alb" data-bo="${b.slug}">
+      <div class="alb-img">
+        <img alt="${b.ten}" data-v="${v1.slug}" data-n="1">
+        <span class="alb-n"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 15 5-5 4 4 3-3 6 6"/></svg>${b.hop.length} mẫu</span>
+      </div>
+      <div class="alb-meta"><h3>${b.ten}</h3>
+        <span class="note">${b.hop.map(x=>x.dangTen).join(' · ')}</span></div>
+    </article>`;
+  }).join('') + `</div>`;
   $$('.alb',v).forEach((el,k)=>{
-    el.style.transitionDelay=Math.min(k,10)*35+'ms'; io.observe(el);
-    img($('img',el));
-    el.addEventListener('click',e=>{
-      if(e.target.closest('.heart')) return;
-      location.hash='#/vay/'+el.dataset.go;
-    });
+    el.style.transitionDelay=Math.min(k,12)*30+'ms'; revIO.observe(el);
+    lazyIO.observe($('img',el));
+    el.addEventListener('click',()=>location.hash='#/bo/'+el.dataset.bo);
   });
-  $$('.heart',v).forEach(h=>h.addEventListener('click',()=>toggleFav(h.dataset.slug)));
-  syncFav();
 }
 
-/* ══════════ MÀN HÌNH: 1 MẪU VÁY ══════════ */
-let cur=null;
-function album(slug){
-  const a=DATA.find(x=>x.slug===slug);
-  if(!a){ location.hash='#/'; return; }
-  cur=a;
-  $('#view').innerHTML=`
-    <a class="back" href="#/"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Tất cả mẫu</a>
+/* ══════════ MÀN 2 — 2 MẪU TRONG BỘ ══════════ */
+function manBo(slug){
+  const b=timBo(slug); if(!b){ location.hash='#/'; return; }
+  const v=$('#view');
+  v.innerHTML = `
+    <a class="back" href="#/"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Tất cả bộ sưu tập</a>
+    <div class="bo-head">
+      <div class="eyebrow-line"></div>
+      <h1>${b.ten}</h1>
+      <p>${b.vay.length} mẫu · mỗi mẫu ${SO_ANH} ảnh</p>
+    </div>
+    <div class="albums two">` + b.vay.map(x=>`
+      <article class="alb" data-go="${x.slug}">
+        <div class="alb-img">
+          <img alt="${x.ten}" data-v="${x.slug}" data-n="1">
+          <button class="heart" data-slug="${x.slug}" aria-label="Khách thích ${x.ten}" aria-pressed="false">
+            <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          </button>
+          <span class="alb-n"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 15 5-5 4 4 3-3 6 6"/></svg>${SO_ANH}</span>
+        </div>
+        <div class="alb-meta"><h3>${x.ten} — ${x.dangTen}</h3>
+          <span class="price">${x.gia}</span>
+          <span class="note">${x.ghiChu}</span></div>
+      </article>`).join('') + `</div>`;
+  $$('.alb',v).forEach((el,k)=>{
+    el.style.transitionDelay=k*50+'ms'; revIO.observe(el);
+    lazyIO.observe($('img',el));
+    el.addEventListener('click',e=>{ if(e.target.closest('.heart')) return;
+      location.hash='#/vay/'+el.dataset.go; });
+  });
+  $$('.heart',v).forEach(h=>h.addEventListener('click',()=>toggleFav(h.dataset.slug)));
+  syncFav(); scrollTo({top:0,behavior:'auto'});
+}
+
+/* ══════════ MÀN 3 — 10 ẢNH CỦA MỘT MẪU ══════════ */
+function manVay(slug){
+  const a=timVay(slug); if(!a){ location.hash='#/'; return; }
+  const v=$('#view');
+  v.innerHTML = `
+    <a class="back" href="#/bo/${a.bo}"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Bộ ${a.boTen}</a>
     <section class="cover">
-      <div class="cover-side"><div class="cover-img">
-        <img src="${src(a,1,900,1200)}" data-ph="${a.i}|900|1200" alt="${a.ten}"></div></div>
+      <div class="cover-side"><div class="cover-img"><img alt="${a.ten}" data-v="${a.slug}" data-n="1"></div></div>
       <div class="cover-txt">
         <h1>${a.ten}</h1>
         <div class="cover-rule"></div>
-        <div class="d">${catName(a.dm)}${a.ngay?' · '+a.ngay:''} · ${a.anh.length} ảnh</div>
-        ${a.gia?`<p class="p price">${a.gia}</p>`:''}
-        ${a.ghiChu?`<p class="nt note">${a.ghiChu}</p>`:''}
+        <div class="d">${a.dangTen} · Bộ ${a.boTen} · ${SO_ANH} ảnh</div>
+        <p class="p price">${a.gia}</p>
+        <p class="nt note">${a.ghiChu}</p>
         <div class="cover-acts">
           <button class="btn" id="playAll">Trình chiếu
             <svg viewBox="0 0 24 24"><path d="m6 4 13 8-13 8z" fill="currentColor" stroke="none"/></svg></button>
@@ -552,15 +911,16 @@ function album(slug){
             <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg>
             <span id="likeTxt">Khách thích mẫu này</span></button>
         </div>
-      </div>
-      <div></div>
+      </div><div></div>
     </section>
-    <section class="shots">`+a.anh.map((n,k)=>`
-      <figure class="shot" data-k="${k}" style="margin:0">
-        <img src="${src(a,n,900,1200)}" data-ph="${a.i+k}|900|1200" alt="${a.ten} ${n}" loading="lazy">
-      </figure>`).join('')+`</section>`;
-  img($('.cover-img img'));
-  $$('.shot').forEach((s,k)=>{ s.style.transitionDelay=Math.min(k,9)*40+'ms'; io.observe(s); img($('img',s));
+    <section class="shots">` + a.anh.map(n=>`
+      <figure class="shot" data-k="${n-1}" style="margin:0">
+        <img alt="${a.ten} — ${tenBoCuc(n)}" data-v="${a.slug}" data-n="${n}">
+        <figcaption>${tenBoCuc(n)}</figcaption>
+      </figure>`).join('') + `</section>`;
+  lazyIO.observe($('.cover-img img',v));
+  $$('.shot',v).forEach((s,k)=>{ s.style.transitionDelay=Math.min(k,9)*40+'ms';
+    revIO.observe(s); lazyIO.observe($('img',s));
     s.addEventListener('click',()=>openLB(a,k)); });
   $('#playAll').addEventListener('click',()=>openLB(a,0,true));
   const lk=$('#likeThis');
@@ -571,7 +931,7 @@ function album(slug){
 }
 
 /* ══════════ LIGHTBOX ══════════ */
-const LB={open:false,list:[],i:0,album:null};
+const LB={open:false,list:[],i:0,vay:null};
 (function(){
   const root=$('#lb'),track=$('#lbTrack'),stage=$('#lbStage'),thumbs=$('#lbThumbs');
   let dx=0,drag=false,sx=0,sy=0,ax=null,W=innerWidth;
@@ -584,23 +944,31 @@ const LB={open:false,list:[],i:0,album:null};
     im.style.transform=`translate3d(${px}px,${py}px,0) scale(${z})`;
     im.style.cursor=z>1?'grab':'zoom-in'; }
   function rz(){ z=1;px=0;py=0; $$('.lb-item img',track).forEach(i=>i.style.transform=''); }
+  function nap(k){
+    const im=$$('.lb-item img',track)[k];
+    if(im && !im.src) im.src = anhURL(LB.vay, LB.list[k]);
+    const th=$$('img',thumbs)[k];
+    if(th && !th.src) th.src = anhURL(LB.vay, LB.list[k]);
+  }
   function fill(){
-    $('#lbTitle').textContent=LB.album.ten;
-    $('#lbCount').textContent=`${LB.i+1} / ${LB.list.length}`;
+    $('#lbTitle').textContent = LB.vay.ten + ' — ' + tenBoCuc(LB.list[LB.i]);
+    $('#lbCount').textContent = `${LB.i+1} / ${LB.list.length}`;
+    [LB.i-1,LB.i,LB.i+1].forEach(k=>{ if(k>=0&&k<LB.list.length) nap(k); });
     $$('img',thumbs).forEach((t,k)=>{ t.classList.toggle('on',k===LB.i);
       if(k===LB.i) t.scrollIntoView({inline:'center',block:'nearest',behavior:RM?'auto':'smooth'}); });
   }
   function go(k){ LB.i=clamp(k,0,LB.list.length-1); dx=0; rz(); paint(true); fill(); t0=performance.now(); }
 
   window.openLB=function(a,idx,autoplay){
-    LB.album=a; LB.list=a.anh; LB.i=clamp(idx||0,0,a.anh.length-1); LB.open=true; W=innerWidth;
-    track.innerHTML=a.anh.map((n,k)=>`<div class="lb-item"><img src="${src(a,n,1500,2000)}" data-ph="${a.i+k}|1500|2000" alt="" draggable="false"></div>`).join('');
-    thumbs.innerHTML=a.anh.map((n,k)=>`<img src="${src(a,n,160,210)}" data-ph="${a.i+k}|160|210" alt="" data-k="${k}">`).join('');
+    LB.vay=a; LB.list=a.anh; LB.i=clamp(idx||0,0,a.anh.length-1); LB.open=true; W=innerWidth;
+    track.innerHTML=a.anh.map(()=>`<div class="lb-item"><img alt="" draggable="false"></div>`).join('');
+    thumbs.innerHTML=a.anh.map((n,k)=>`<img alt="" data-k="${k}">`).join('');
     $$('img',thumbs).forEach(t=>t.addEventListener('click',()=>go(+t.dataset.k)));
+    [LB.i, LB.i+1, LB.i-1].forEach(k=>{ if(k>=0&&k<a.anh.length) nap(k); });
     rz(); paint(false); fill();
     root.classList.add('open'); document.body.classList.add('lock');
-    setPlay(!!autoplay);
-    $('#lbClose').focus({preventScroll:true});
+    setPlay(!!autoplay); $('#lbClose').focus({preventScroll:true});
+    for(let k=0;k<a.anh.length;k++) xepHang(()=>nap(k));
   };
   function close(){ LB.open=false; setPlay(false); root.classList.remove('open');
     if(!$('#drawer').classList.contains('open')) document.body.classList.remove('lock'); }
@@ -632,22 +1000,22 @@ const LB={open:false,list:[],i:0,album:null};
   $('#lbPrev').addEventListener('click',()=>go(LB.i-1));
   $('#lbNext').addEventListener('click',()=>go(LB.i+1));
   $('#lbZoom').addEventListener('click',()=>{ z=z>1?1:2.3; px=py=0; zp(); });
-  $('#lbDl').addEventListener('click',async()=>{
+  $('#lbDl').addEventListener('click',()=>{
     const u=$$('.lb-item img',track)[LB.i].src;
-    try{ const r=await fetch(u,{mode:'cors'}); if(!r.ok) throw 0;
-      const b=await r.blob(),o=URL.createObjectURL(b),a=document.createElement('a');
-      a.href=o; a.download=`${LB.album.thuMuc}-${LB.i+1}.jpg`; a.click();
-      setTimeout(()=>URL.revokeObjectURL(o),4000); toast('Đang tải ảnh…');
-    }catch(_){ window.open(u,'_blank','noopener'); toast('Đã mở ảnh ở tab mới'); }
+    const a=document.createElement('a');
+    a.href=u; a.download=`${LB.vay.slug}-${LB.i+1}.jpg`;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Đang tải ảnh…');
   });
   $('#lbShare').addEventListener('click',async()=>{
-    const url=location.href.split('#')[0]+'#/vay/'+LB.album.slug;
-    try{ if(navigator.share) await navigator.share({title:LB.album.ten,url});
+    const url=location.href.split('#')[0]+'#/vay/'+LB.vay.slug;
+    try{ if(navigator.share) await navigator.share({title:LB.vay.ten,url});
       else { await navigator.clipboard.writeText(url); toast('Đã sao chép liên kết'); } }
     catch(_){ toast('Liên kết: '+url); }
   });
   function setPlay(v){ play=v; $('#lbPlay').classList.toggle('on',v);
-    if(v){ t0=performance.now(); tick(); } else { cancelAnimationFrame(raf); $('#lbPlay').style.setProperty('--p','0deg'); } }
+    if(v){ t0=performance.now(); tick(); }
+    else { cancelAnimationFrame(raf); $('#lbPlay').style.setProperty('--p','0deg'); } }
   function tick(){ if(!play) return; const e=performance.now()-t0;
     $('#lbPlay').style.setProperty('--p',(Math.min(e/SDUR,1)*360)+'deg');
     if(e>=SDUR){ LB.i=LB.i>=LB.list.length-1?0:LB.i+1; dx=0; rz(); paint(true); fill(); t0=performance.now(); }
@@ -664,40 +1032,33 @@ const LB={open:false,list:[],i:0,album:null};
   addEventListener('resize',()=>{W=innerWidth; if(LB.open)paint(false);});
 })();
 
-/* ══════════ TÌM KIẾM ══════════ */
-$('#searchBtn').addEventListener('click',()=>{
-  const b=$('#searchBox'); b.classList.toggle('open');
-  if(b.classList.contains('open')) $('#q').focus(); else { kw=''; $('#q').value=''; render(); }
-});
-let qT; $('#q').addEventListener('input',e=>{
-  clearTimeout(qT); qT=setTimeout(()=>{ kw=e.target.value.trim().toLowerCase();
-    if(location.hash.startsWith('#/vay/')) location.hash='#/'; else home(); },220);
-});
-$('#qClear').addEventListener('click',()=>{ $('#q').value=''; kw=''; $('#q').focus(); home(); });
-
-/* ══════════ CHẾ ĐỘ KHÁCH ══════════ */
+/* ────────── chế độ khách / giao diện ────────── */
 function guest(v){ document.body.classList.toggle('guest',v); $('#guestBtn').classList.toggle('on',v);
   toast(v?'Chế độ khách — đã ẩn giá':'Đã hiện lại giá'); }
 $('#guestBtn').addEventListener('click',()=>guest(!document.body.classList.contains('guest')));
 $('#guestOff').addEventListener('click',()=>guest(false));
-
-/* ══════════ THEME ══════════ */
 $('#themeBtn').addEventListener('click',()=>{
   const d=document.documentElement.dataset.theme==='dark';
   document.documentElement.dataset.theme=d?'light':'dark';
   $('#icSun').style.display=d?'':'none'; $('#icMoon').style.display=d?'none':'';
 });
 
-/* ══════════ ROUTER ══════════ */
+/* ────────── điều hướng ────────── */
 function render(){
   const h=location.hash;
-  const m=/^#\/vay\/(.+)$/.exec(h);
-  if(m) album(decodeURIComponent(m[1])); else home();
+  let m;
+  if((m=/^#\/vay\/(.+)$/.exec(h)))      manVay(decodeURIComponent(m[1]));
+  else if((m=/^#\/bo\/(.+)$/.exec(h)))  manBo(decodeURIComponent(m[1]));
+  else                                   manBoSuuTap();
+  $('#tabs').closest('.top-in').style.display='';
 }
 addEventListener('hashchange',render);
-drawTabs(); render(); syncFav();
+veTabs(); render(); syncFav();
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const b=$('#boot'); if(b) b.classList.add('done');
+}));
 
-/* ══════════ PWA ══════════ */
+/* ────────── PWA ────────── */
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
@@ -710,6 +1071,7 @@ addEventListener('beforeinstallprompt',e=>{
   document.body.appendChild(b); setTimeout(()=>b.remove(),15000);
 });
 })();
+
 </script>
 </body>
 </html>
