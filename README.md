@@ -1,8 +1,19 @@
 # MR HẠNH PHÚC — Catalogue váy cưới (app nội bộ)
 
-**50 bộ sưu tập × 2 mẫu = 100 mẫu váy, mỗi mẫu 10 ảnh.**
+**8 danh mục · 100 mục · mỗi mục 10 ảnh.**
 
-Cấu trúc 3 tầng: **Bộ sưu tập → 2 mẫu váy → 10 ảnh** — bấm ảnh để xem toàn màn hình.
+Cấu trúc 2 tầng: **Danh mục → Mẫu / Album → Ảnh** — bấm ảnh để xem toàn màn hình.
+
+| Danh mục | Số mục |
+|---|---|
+| Vest | 10 |
+| Áo dài | 12 |
+| Váy Basic | 18 |
+| Váy Luxury | 18 |
+| Album Wedding | 10 |
+| Phóng Sự Cưới | 10 |
+| Ảnh Cưới Khách Hàng | 12 |
+| Pre wedding | 10 |
 
 ---
 
@@ -20,11 +31,10 @@ Chân váy · Toàn cảnh · Góc thấp · Cận nếp vải · Ngược sáng
 2. Tạo thư mục ảnh theo mã mẫu, ví dụ bộ **Viên Mãn** (`slug: 'vienman'`) có 2 mẫu:
 
 ```
-anh/vienman-1/1.jpg  …  10.jpg     ← mẫu I
-anh/vienman-2/1.jpg  …  10.jpg     ← mẫu II
+anh/lx-vienman/1.jpg  …  10.jpg
 ```
 
-Quy tắc: `anh/<slug>-<1 hoặc 2>/<số>.jpg`. Ảnh `1.jpg` là ảnh bìa.
+Quy tắc: `anh/<slug>/<số>.jpg`. Ảnh `1.jpg` là ảnh bìa.
 
 > Lúc đó sẽ có ~1000 file ảnh — nhớ dùng **GitHub Desktop** (desktop.github.com) để đẩy lên,
 > đừng kéo thả trên web. Và nén ảnh dưới 300 KB/tấm bằng https://squoosh.app.
@@ -33,14 +43,24 @@ Quy tắc: `anh/<slug>-<1 hoặc 2>/<số>.jpg`. Ảnh `1.jpg` là ảnh bìa.
 
 ## ✏️ Sửa danh sách váy
 
-Mở `index.html`, tìm `const BO_SUU_TAP = [`. Mỗi dòng là **một bộ sưu tập**:
+Mở `index.html`, tìm `const MUC = [`. Mỗi dòng là **một mục**:
 
 ```js
-{ten:'Viên Mãn', slug:'vienman', dang:['xoe','duoica'], gia:['12.500.000đ','9.800.000đ']},
+{ten:'Viên Mãn', slug:'lx-vienman', dm:'luxury', dang:'xoe', gia:'12.500.000đ', ghiChu:'Xòe lớn, đính pha lê'},
 ```
 
 | Cột | Nghĩa |
 |---|---|
+| `ten` | Tên hiện trên app |
+| `slug` | Mã không dấu — dùng cho đường dẫn và tên thư mục ảnh |
+| `dm` | Mã danh mục: `vest` `aodai` `basic` `luxury` `album` `phongsu` `khachhang` `prewedding` |
+| `dang` | Hình vẽ mẫu: `xoe` `chuA` `duoica` `suong` `aodai` `vest` `canh` |
+| `gia` | Để `''` nếu không muốn hiện giá |
+| `ghiChu` | Mô tả ngắn |
+
+Đổi tên/thêm danh mục thì sửa khối `DANH_MUC` ngay phía trên.
+
+---|---|
 | `ten` | Tên bộ hiện trên app |
 | `slug` | Mã không dấu — dùng cho đường dẫn và tên thư mục ảnh |
 | `dang` | 2 kiểu dáng của 2 mẫu trong bộ |
@@ -66,6 +86,11 @@ Muốn đổi mô tả từng kiểu dáng thì sửa khối `GHI_CHU` ngay bên
 | Tab dáng | Lọc nhanh theo kiểu dáng |
 | **Trình chiếu** | Chạy tự động 10 ảnh của mẫu, toàn màn hình |
 | **Sao chép danh sách** | Copy váy khách thích kèm giá → dán vào Zalo |
+| 🏠 trong lightbox | Đóng ảnh và về thẳng trang chủ |
+
+**Điều hướng:** mỗi trang có đường dẫn ở trên cùng —
+`🏠 Tất cả bộ sưu tập › Viên Mãn › Viên Mãn I` — bấm vào bất kỳ mắt xích nào để nhảy về đó.
+Bấm tên **MR HẠNH PHÚC** giữa thanh trên cùng cũng về trang chủ.
 
 Trong lúc xem ảnh lớn: **vuốt** trái/phải, **nháy đúp** hoặc lăn chuột để phóng to, kéo để di chuyển,
 phím **←/→** chuyển ảnh, **Space** bật/tắt trình chiếu.
@@ -93,28 +118,28 @@ GitHub Pages là **hosting tĩnh, không có máy chủ**. Nghĩa là:
   **sửa → Tải index.html mới → upload đè lên GitHub**.
 - Đóng tab mà chưa tải file là mất hết. Sửa xong tải ngay.
 
-### Sửa / thêm / xoá / đổi thứ tự bộ sưu tập
+### Sửa / thêm / xoá / đổi thứ tự
 
-Tất cả nằm ngay ở danh sách trong `#/admin`:
+Tất cả nằm ở danh sách trong `#/admin`:
 
 | Việc | Làm sao |
 |---|---|
-| **Đổi tên bộ** | Bấm nút **SỬA** (hoặc bấm vào dòng) → form mở ra → sửa ô **TÊN BỘ** |
-| **Đổi giá / kiểu dáng / ghi chú** | Cùng form đó, mỗi bộ có 2 khung Mẫu I và Mẫu II |
-| **Thêm bộ mới** | Nút **+ Thêm bộ** ở trên cùng — bộ mới xuất hiện ở đầu danh sách |
-| **Xoá bộ** | Mở form ra → nút **Xoá bộ này** ở góc dưới trái |
-| **Đổi thứ tự** | Hai nút mũi tên **↑ ↓** bên phải mỗi dòng |
-| **Đổi mã (slug)** | Trong form, ô **MÃ (KHÔNG DẤU)**. Đổi mã thì nhớ đổi luôn tên thư mục ảnh tương ứng |
+| **Đổi tên** | Bấm **SỬA** → ô **TÊN** |
+| **Chuyển sang danh mục khác** | Ô **DANH MỤC** — chọn 1 trong 8 |
+| **Đổi giá / ghi chú** | Cùng form |
+| **Đổi hình vẽ mẫu** | Ô **HÌNH VẼ MẪU** — Váy xòe / Chữ A / Đuôi cá / Suông / Áo dài / Vest / Bối cảnh |
+| **Thêm mục mới** | Nút **+ Thêm mục** |
+| **Xoá** | Mở form → **Xoá mục này** |
+| **Đổi thứ tự** | Nút **↑ ↓** bên phải mỗi dòng |
 
-> Sửa xong đừng quên bấm **Tải index.html mới** rồi upload đè lên GitHub. Không làm bước này
-> thì mọi thứ chỉ nằm trong tab đang mở.
+> Sửa xong đừng quên **Tải index.html mới** rồi upload đè lên GitHub.
 
-### Quy trình đăng một mẫu váy mới
+### Quy trình đăng một mẫu mới
 
 1. Vào `#/admin`, nhập mã
-2. Bấm **+ Thêm bộ** → điền tên bộ, mã (không dấu), kiểu dáng và giá cho 2 mẫu
-3. Bấm **+ Thêm ảnh** ở từng mẫu → chọn ảnh từ máy (chọn nhiều tấm một lúc được).
-   Ảnh tự cắt về khổ dọc 3:4 và nén còn ~720×960
+2. Bấm **+ Thêm mục** → điền tên, mã (không dấu), chọn danh mục, giá, ghi chú
+3. Bấm **+ Thêm ảnh** → chọn ảnh từ máy (chọn nhiều tấm một lúc được).
+   Ảnh tự cắt khổ dọc 3:4 và nén còn ~720×960
 4. Bấm **Xong**
 5. Bấm **Tải index.html mới** → upload file đó đè lên GitHub → xong
 
@@ -123,8 +148,8 @@ Tất cả nằm ngay ở danh sách trong `#/admin`:
 | Nút | Khi nào dùng |
 |---|---|
 | **Tải index.html mới** | Cách chính. Ảnh được nhúng thẳng vào file. Dùng khi tổng ảnh dưới ~8 MB |
-| **Tải ảnh .zip** | Khi ảnh đã nhiều. Giải nén vào repo cạnh `index.html`, ảnh nằm ở `anh/<mã>-1/`, `anh/<mã>-2/` |
-| **Sao chép dữ liệu** | Khi mở file bằng cách nháy đúp (không qua link web). Copy rồi dán đè khối `BO_SUU_TAP` trong `index.html` bằng Notepad |
+| **Tải ảnh .zip** | Khi ảnh đã nhiều. Giải nén vào repo cạnh `index.html`, ảnh nằm ở `anh/<mã>/` |
+| **Sao chép dữ liệu** | Khi mở file bằng cách nháy đúp (không qua link web). Copy rồi dán đè khối `MUC` trong `index.html` bằng Notepad |
 | **Xem catalogue** | Quay lại xem thành quả |
 
 > Nút *Tải index.html mới* chỉ chạy khi mở app **qua link web**. Mở file trực tiếp từ ổ đĩa
@@ -156,7 +181,7 @@ Cần thì nói mình, mình dựng cho.
 Upload đè 3 file `index.html`, `sw.js`, `manifest.webmanifest` vào repo → Commit → đợi 1 phút.
 
 > **Bắt buộc mỗi lần cập nhật:** mở `sw.js` tăng số phiên bản
-> `const CACHE = 'mrhanhphuc-v6';` → `'mrhanhphuc-v7';`
+> `const CACHE = 'mrhanhphuc-v8';` → `'mrhanhphuc-v9';`
 > Không làm thì máy đã cài app vẫn thấy bản cũ.
 
 ## 📱 Cài lên máy nhân viên
