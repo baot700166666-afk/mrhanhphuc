@@ -446,6 +446,287 @@ body.admin-mode .tabs,body.admin-mode #searchBox{display:none}
 </html>
 <script>
 /* ══════════════════════════════════════════════════════════════
+   HÌNH MINH HOẠ THEO TỪNG HẠNG MỤC
+   album     — album cưới (bìa da, trang trong, chồng album, ảnh khung)
+   phongsu   — bối cảnh lễ cưới (cổng hoa, lối đi, hàng ghế, sân khấu)
+   capdoi    — cô dâu chú rể đứng cạnh nhau
+   ngoaicanh — phong cảnh pre-wedding (núi, biển, hoàng hôn)
+   ══════════════════════════════════════════════════════════════ */
+
+function rrect(c, x, y, w, h, r){
+  c.beginPath();
+  c.moveTo(x+r, y);
+  c.arcTo(x+w, y,   x+w, y+h, r);
+  c.arcTo(x+w, y+h, x,   y+h, r);
+  c.arcTo(x,   y+h, x,   y,   r);
+  c.arcTo(x,   y,   x+w, y,   r);
+  c.closePath();
+}
+function bongDo(c, cx, cy, rx, ry, dam){
+  c.save(); c.translate(cx, cy); c.scale(1, ry/rx);
+  const g = c.createRadialGradient(0,0,0, 0,0, rx);
+  g.addColorStop(0, `rgba(92,80,68,${dam})`); g.addColorStop(1,'rgba(92,80,68,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(0,0,rx,0,7); c.fill(); c.restore();
+}
+
+/* ─────────── ALBUM CƯỚI ─────────── */
+function canhAlbum(c, W, H, rnd, kieu){
+  const BIA = [['#2E2A26','#4A423A','#6B5F52'], ['#3A2F2A','#5C4B41','#7D6857'],
+               ['#1F2328','#343B44','#4E5866'], ['#4A3B30','#6E594A','#8F7663']];
+  const b = BIA[Math.floor(rnd()*BIA.length)];
+  const cx = W*.5, cy = H*.52;
+
+  function bia(x, y, w, h, xoay, nhan){
+    c.save(); c.translate(x, y); c.rotate(xoay);
+    bongDo(c, 6, h*.52, w*.62, w*.16, .40);
+    const g = c.createLinearGradient(-w/2, 0, w/2, 0);
+    g.addColorStop(0, b[0]); g.addColorStop(.45, b[1]); g.addColorStop(1, b[2]);
+    c.fillStyle = g; rrect(c, -w/2, -h/2, w, h, 6); c.fill();
+    // gáy
+    c.fillStyle = 'rgba(0,0,0,.30)';
+    c.fillRect(-w/2, -h/2, w*.055, h);
+    // mép giấy
+    c.fillStyle = 'rgba(245,240,232,.85)';
+    c.fillRect(w/2 - w*.022, -h/2 + h*.02, w*.022, h - h*.04);
+    // chữ mạ vàng
+    if(nhan){
+      c.strokeStyle = 'rgba(214,186,132,.85)'; c.lineWidth = 1.4;
+      c.strokeRect(-w*.30, -h*.30, w*.60, h*.60);
+      c.fillStyle = 'rgba(222,197,148,.92)';
+      c.fillRect(-w*.16, -h*.03, w*.32, 2);
+      c.fillRect(-w*.10, h*.04, w*.20, 1.4);
+    }
+    // ánh sáng lướt
+    const s = c.createLinearGradient(-w/2, -h/2, w*.10, h/2);
+    s.addColorStop(0,'rgba(255,255,255,.16)'); s.addColorStop(.5,'rgba(255,255,255,0)');
+    c.fillStyle = s; rrect(c, -w/2, -h/2, w, h, 6); c.fill();
+    c.restore();
+  }
+
+  if(kieu === 0){                       // bìa đóng, đứng
+    bia(cx, cy, W*.46, H*.46, -.03, true);
+  } else if(kieu === 1){                // mở đôi trang
+    const w = W*.30, h = H*.40;
+    [-1, 1].forEach(s=>{
+      c.save(); c.translate(cx + s*w*.5, cy); c.rotate(s*.02);
+      c.fillStyle = '#F6F1E9'; rrect(c, -w/2, -h/2, w, h, 3); c.fill();
+      c.fillStyle = 'rgba(190,178,162,.55)';
+      c.fillRect(-w*.34, -h*.34, w*.68, h*.46);
+      c.fillStyle = 'rgba(160,148,132,.35)';
+      c.fillRect(-w*.34, h*.20, w*.40, 3);
+      c.restore();
+    });
+    c.fillStyle = 'rgba(0,0,0,.22)'; c.fillRect(cx-3, cy-h/2, 6, h);
+    bongDo(c, cx, cy + h*.56, W*.34, H*.035, .42);
+  } else if(kieu === 2){                // chồng 3 album
+    for(let i=2;i>=0;i--) bia(cx + i*W*.035, cy - i*H*.028, W*.40, H*.40, -.02 + i*.03, i===0);
+  } else {                              // ảnh đóng khung
+    const w = W*.44, h = H*.44;
+    bongDo(c, cx, cy + h*.56, w*.66, h*.06, .40);
+    c.fillStyle = '#6B5A48'; rrect(c, cx-w/2, cy-h/2, w, h, 4); c.fill();
+    c.fillStyle = '#F7F3EC'; c.fillRect(cx-w/2 + 14, cy-h/2 + 14, w-28, h-28);
+    c.fillStyle = 'rgba(186,174,158,.60)';
+    c.fillRect(cx-w/2 + 34, cy-h/2 + 34, w-68, h-68);
+  }
+}
+
+/* ─────────── BỐI CẢNH LỄ CƯỚI ─────────── */
+function canhPhongSu(c, W, H, rnd, kieu){
+  const san = H*.80;
+  // sàn
+  let g = c.createLinearGradient(0, san, 0, H);
+  g.addColorStop(0,'rgba(150,134,116,.30)'); g.addColorStop(1,'rgba(150,134,116,.05)');
+  c.fillStyle = g; c.fillRect(0, san, W, H-san);
+
+  if(kieu === 0 || kieu === 3){         // cổng hoa
+    const cx = W*.5, r = W*.24;
+    c.lineWidth = W*.045;
+    c.strokeStyle = 'rgba(238,232,222,.95)';
+    c.beginPath(); c.arc(cx, H*.46, r, Math.PI, 0); c.stroke();
+    c.beginPath(); c.moveTo(cx-r, H*.46); c.lineTo(cx-r, san); c.stroke();
+    c.beginPath(); c.moveTo(cx+r, H*.46); c.lineTo(cx+r, san); c.stroke();
+    // hoa lấm tấm
+    for(let i=0;i<46;i++){
+      const a = Math.PI + rnd()*Math.PI;
+      const rr = r + (rnd()-.5)*W*.05;
+      const x = cx + Math.cos(a)*rr, y = H*.46 + Math.sin(a)*rr;
+      c.fillStyle = rnd()<.6 ? 'rgba(255,252,246,.9)' : 'rgba(206,190,168,.85)';
+      c.beginPath(); c.arc(x, y, 3 + rnd()*7, 0, 7); c.fill();
+    }
+    bongDo(c, cx, san + H*.012, r*1.2, H*.02, .34);
+  } else if(kieu === 1){                // lối đi + hàng ghế
+    c.fillStyle = 'rgba(252,249,243,.80)';
+    c.beginPath();
+    c.moveTo(W*.42, H*.42); c.lineTo(W*.58, H*.42);
+    c.lineTo(W*.80, H); c.lineTo(W*.20, H); c.closePath(); c.fill();
+    for(let r0=0;r0<5;r0++){
+      const y = H*.46 + r0*H*.095, s = .5 + r0*.16;
+      [-1,1].forEach(sg=>{
+        for(let k=0;k<3;k++){
+          const x = W*.5 + sg*(W*.11*s + k*W*.075*s);
+          c.fillStyle = `rgba(228,220,208,${.85 - r0*.06})`;
+          rrect(c, x - W*.026*s, y - H*.05*s, W*.052*s, H*.075*s, 3); c.fill();
+        }
+      });
+    }
+  } else {                              // sân khấu + đèn
+    c.fillStyle = 'rgba(60,52,44,.30)';
+    c.fillRect(0, 0, W, H*.30);
+    for(let i=0;i<22;i++){
+      const x = rnd()*W, y = H*(.06 + rnd()*.30), r = 4 + rnd()*16;
+      const gg = c.createRadialGradient(x,y,0, x,y,r*3);
+      gg.addColorStop(0,'rgba(255,242,214,.85)'); gg.addColorStop(1,'rgba(255,242,214,0)');
+      c.fillStyle = gg; c.beginPath(); c.arc(x,y,r*3,0,7); c.fill();
+    }
+    c.fillStyle = 'rgba(240,234,224,.9)';
+    rrect(c, W*.22, H*.52, W*.56, H*.28, 8); c.fill();
+    c.fillStyle = 'rgba(160,146,128,.35)';
+    c.fillRect(W*.22, H*.78, W*.56, H*.02);
+  }
+}
+
+/* ─────────── CÔ DÂU + CHÚ RỂ ─────────── */
+function canhCapDoi(c, W, H, rnd, kieu){
+  const san = H*.88, dinh = H*.20;
+  const cx = W*.5, gap = W*(kieu===1 ? .085 : .105);
+
+  bongDo(c, cx, san + H*.014, W*.30, H*.026, .40);
+
+  // chú rể (trái)
+  const vx = cx - gap;
+  c.beginPath();
+  c.moveTo(vx - W*.062, dinh + H*.03);
+  c.lineTo(vx + W*.062, dinh + H*.03);
+  c.lineTo(vx + W*.052, san);
+  c.lineTo(vx - W*.052, san);
+  c.closePath();
+  let g = c.createLinearGradient(vx - W*.07, 0, vx + W*.07, 0);
+  g.addColorStop(0,'#23262B'); g.addColorStop(.5,'#3E444D'); g.addColorStop(1,'#1C1F24');
+  c.fillStyle = g; c.fill();
+  // ve áo
+  c.fillStyle = 'rgba(255,255,255,.10)';
+  c.beginPath();
+  c.moveTo(vx - W*.048, dinh + H*.03); c.lineTo(vx, dinh + H*.16);
+  c.lineTo(vx + W*.048, dinh + H*.03); c.lineTo(vx + W*.026, dinh + H*.03);
+  c.lineTo(vx, dinh + H*.115); c.lineTo(vx - W*.026, dinh + H*.03);
+  c.closePath(); c.fill();
+  // đầu
+  c.fillStyle = '#2A2723';
+  c.beginPath(); c.arc(vx, dinh - H*.014, W*.036, 0, 7); c.fill();
+
+  // cô dâu (phải)
+  const dx = cx + gap;
+  const hem = W*(kieu===2 ? .20 : .155);
+  c.beginPath();
+  c.moveTo(dx - W*.052, dinh + H*.04);
+  c.lineTo(dx + W*.052, dinh + H*.04);
+  c.quadraticCurveTo(dx + W*.045, H*.52, dx + hem, san);
+  c.lineTo(dx - hem, san);
+  c.quadraticCurveTo(dx - W*.045, H*.52, dx - W*.052, dinh + H*.04);
+  c.closePath();
+  g = c.createLinearGradient(dx - hem, 0, dx + hem, 0);
+  g.addColorStop(0,'#DCD3C7'); g.addColorStop(.42,'#F7F3EC');
+  g.addColorStop(.72,'#FFFEFC'); g.addColorStop(1,'#E2D9CC');
+  c.fillStyle = g; c.fill();
+  c.fillStyle = '#2A2723';
+  c.beginPath(); c.arc(dx, dinh - H*.004, W*.034, 0, 7); c.fill();
+  // voan
+  c.fillStyle = 'rgba(255,255,255,.30)';
+  c.beginPath();
+  c.moveTo(dx - W*.030, dinh + H*.005);
+  c.quadraticCurveTo(dx - W*.115, H*.50, dx - W*.075, san);
+  c.lineTo(dx - W*.020, san);
+  c.quadraticCurveTo(dx - W*.050, H*.46, dx - W*.010, dinh + H*.02);
+  c.closePath(); c.fill();
+}
+
+/* ─────────── PHONG CẢNH PRE-WEDDING ─────────── */
+function canhNgoai(c, W, H, rnd, kieu){
+  const chan = H*(kieu===1 ? .70 : .74);
+
+  // mặt trời
+  const sx = W*(.30 + rnd()*.40), sy = chan - H*.10;
+  let g = c.createRadialGradient(sx, sy, 0, sx, sy, H*.26);
+  g.addColorStop(0,'rgba(255,238,206,.95)'); g.addColorStop(1,'rgba(255,238,206,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(sx, sy, H*.26, 0, 7); c.fill();
+  c.fillStyle = 'rgba(255,246,226,.92)';
+  c.beginPath(); c.arc(sx, sy, H*.038, 0, 7); c.fill();
+
+  // các lớp núi / đồi
+  const LOP = [['rgba(150,140,128,.42)', .10], ['rgba(120,110,98,.52)', .05], ['rgba(88,80,70,.62)', .0]];
+  LOP.forEach(([mau, lech], li)=>{
+    c.fillStyle = mau;
+    c.beginPath();
+    c.moveTo(0, chan + H*lech);
+    const dinhs = 3 + li;
+    for(let i=0;i<=dinhs;i++){
+      const x0 = W*i/dinhs, x1 = W*(i+.5)/dinhs;
+      const cao = H*(.05 + rnd()*.10) * (1 - li*.16);
+      c.quadraticCurveTo(x1, chan + H*lech - cao, W*(i+1)/dinhs, chan + H*lech);
+    }
+    c.lineTo(W, H); c.lineTo(0, H); c.closePath(); c.fill();
+  });
+
+  if(kieu === 1){                       // mặt nước phản chiếu
+    g = c.createLinearGradient(0, chan + H*.10, 0, H);
+    g.addColorStop(0,'rgba(196,206,212,.55)'); g.addColorStop(1,'rgba(150,162,170,.30)');
+    c.fillStyle = g; c.fillRect(0, chan + H*.10, W, H);
+    for(let i=0;i<16;i++){
+      const y = chan + H*.13 + rnd()*H*.16;
+      c.fillStyle = `rgba(255,252,244,${.10 + rnd()*.22})`;
+      c.fillRect(sx - W*(.04 + rnd()*.10), y, W*(.08 + rnd()*.20), 1.6);
+    }
+  }
+
+  // cây nhỏ hai bên
+  if(kieu === 2){
+    [W*.12, W*.88].forEach(x=>{
+      c.fillStyle = 'rgba(70,64,56,.55)';
+      c.fillRect(x-3, chan - H*.02, 6, H*.16);
+      c.beginPath(); c.arc(x, chan - H*.05, W*.045, 0, 7); c.fill();
+    });
+  }
+
+  // cặp đôi nhỏ ở chân trời
+  const px = W*.5, py = chan + H*.075, s = H*.055;
+  c.fillStyle = 'rgba(52,46,40,.72)';
+  c.beginPath();
+  c.moveTo(px - s*.30, py - s); c.lineTo(px - s*.05, py - s);
+  c.lineTo(px - s*.05, py); c.lineTo(px - s*.34, py); c.closePath(); c.fill();
+  c.beginPath(); c.arc(px - s*.18, py - s*1.14, s*.15, 0, 7); c.fill();
+  c.beginPath();
+  c.moveTo(px + s*.06, py - s*.96); c.lineTo(px + s*.28, py - s*.96);
+  c.lineTo(px + s*.46, py); c.lineTo(px - s*.02, py); c.closePath(); c.fill();
+  c.beginPath(); c.arc(px + s*.17, py - s*1.10, s*.14, 0, 7); c.fill();
+}
+
+/* ─────────── điều phối ─────────── */
+const LA_CANH = {album:1, phongsu:1, capdoi:1, ngoaicanh:1};
+function veCanh(c, loai, W, H, rnd, kieu){
+  if(loai === 'album')     return canhAlbum(c, W, H, rnd, kieu);
+  if(loai === 'phongsu')   return canhPhongSu(c, W, H, rnd, kieu);
+  if(loai === 'capdoi')    return canhCapDoi(c, W, H, rnd, kieu);
+  if(loai === 'ngoaicanh') return canhNgoai(c, W, H, rnd, kieu);
+}
+
+/* tên bố cục theo từng loại */
+const TEN_BOCUC = {
+  trangphuc: ['Toàn thân','Lệch trái','Nắng cửa sổ','Trung cảnh','Cận thân trên',
+              'Chân váy','Toàn cảnh','Góc thấp','Cận nếp vải','Ngược sáng'],
+  album:     ['Bìa album','Trang trong','Chồng album','Ảnh khung','Cận gáy',
+              'Cận chi tiết','Toàn cảnh','Góc nghiêng','Mặt bìa','Ngược sáng'],
+  phongsu:   ['Cổng hoa','Lối đi','Hàng ghế','Sân khấu','Cận nến',
+              'Toàn cảnh','Góc cao','Ánh đèn','Khoảnh khắc','Ngược sáng'],
+  capdoi:    ['Toàn thân','Đứng cạnh','Nắng chiều','Trung cảnh','Cận đôi',
+              'Chân váy','Toàn cảnh','Góc thấp','Cận chi tiết','Ngược sáng'],
+  ngoaicanh: ['Bình minh','Đồi núi','Mặt hồ','Trung cảnh','Cận cảnh',
+              'Chân trời','Toàn cảnh','Góc thấp','Chi tiết','Hoàng hôn'],
+};
+function nhomBoCuc(dang){
+  return LA_CANH[dang] ? dang : 'trangphuc';
+}
+
+/* ══════════════════════════════════════════════════════════════
    BỘ VẼ VÁY — tạo ảnh ngay trên trình duyệt, không cần file ảnh
    Mỗi (mẫu váy, số thứ tự ảnh) cho ra một bố cục / góc máy khác nhau.
    Không dùng ctx.filter (blur) vì rất chậm — độ mềm tạo bằng gradient.
@@ -494,7 +775,8 @@ const PHONG = [
   ['#DDD4C8','#A79C8D','#F3ECE3'], ['#F0E6DE','#C7B2A6','#FDF7F2'],
 ];
 
-/* 10 bố cục — mỗi ảnh một khung hình / góc máy khác nhau */
+/* 10 bố cục — mỗi ảnh một khung hình / góc máy khác nhau
+   (tên hiển thị lấy từ TEN_BOCUC trong scenes.js theo từng hạng mục) */
 const BOCUC = [
   {ten:'Toàn thân',     cam:[0,0,1,1],              scale:1.00, dx:0,    sang:.55, beam:0},
   {ten:'Lệch trái',     cam:[0,0,1,1],              scale:0.92, dx:-.13, sang:.30, beam:0},
@@ -602,6 +884,11 @@ function veAnh(canvas, dang, seed, sttAnh){
   const topY = RH*.17, botY = RH*.90;
   const cx = RW*(.5 + bc.dx), sc = bc.scale;
 
+  /* 3. nếu là hạng mục bối cảnh thì vẽ cảnh riêng rồi kết thúc phần chủ thể */
+  if(typeof LA_CANH !== 'undefined' && LA_CANH[dang]){
+    veCanh(c, dang, RW, RH, rnd, (seed + sttAnh) % 4);
+  } else {
+
   /* 3. vệt sàn + bóng đổ */
   g = c.createLinearGradient(0, botY, 0, botY + RH*.05);
   g.addColorStop(0,'rgba(138,124,110,.16)'); g.addColorStop(1,'rgba(138,124,110,0)');
@@ -687,6 +974,8 @@ function veAnh(canvas, dang, seed, sttAnh){
   g.addColorStop(1,'rgba(255,255,255,.25)');
   c.strokeStyle = g; c.lineWidth = 1.8; c.stroke();
 
+  }
+
   /* 6. vignette */
   g = c.createRadialGradient(RW*.5, RH*.44, RH*.32, RW*.5, RH*.5, RH*.84);
   g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(58,47,39,.20)');
@@ -724,7 +1013,7 @@ function veAnh(canvas, dang, seed, sttAnh){
      slug   : mã không dấu — dùng cho đường dẫn và tên thư mục ảnh
      dm     : mã danh mục (phải trùng 1 mã trong DANH_MUC)
      dang   : hình dáng để máy vẽ ảnh mẫu
-              'xoe' | 'chuA' | 'duoica' | 'suong' | 'aodai' | 'vest' | 'canh'
+              'xoe' 'chuA' 'duoica' 'suong' 'aodai' 'vest' 'album' 'phongsu' 'capdoi' 'ngoaicanh'
      gia    : giá thuê — để '' nếu không hiện (album, phóng sự…)
      ghiChu : mô tả ngắn
      soAnh  : số ảnh (mặc định 10)
@@ -743,7 +1032,8 @@ const SO_ANH = 10;   // số ảnh mặc định mỗi mẫu
 
 const TEN_DANG = {
   xoe:'Váy xòe', chuA:'Chữ A', duoica:'Đuôi cá', suong:'Suông',
-  aodai:'Áo dài', vest:'Vest', canh:'Bối cảnh'
+  aodai:'Áo dài', vest:'Vest',
+  album:'Album cưới', phongsu:'Bối cảnh lễ', capdoi:'Cô dâu chú rể', ngoaicanh:'Phong cảnh'
 };
 
 /* ── 8 DANH MỤC CHÍNH ── */
@@ -826,54 +1116,54 @@ const MUC = [
   {ten:'Bách Hợp',    slug:'lx-bachhop',    dm:'luxury', dang:'xoe',    gia:'13.500.000đ', ghiChu:'Hoa lụa đính nổi, đuôi tròn'},
 
   /* ───── ALBUM WEDDING (10) ───── */
-  {ten:'Album Ngọc Trai',  slug:'ab-ngoctrai',  dm:'album', dang:'canh', gia:'6.500.000đ',  ghiChu:'25×25cm, 20 tờ, bìa da ép kim'},
-  {ten:'Album Pha Lê',     slug:'ab-phale',     dm:'album', dang:'canh', gia:'8.900.000đ',  ghiChu:'30×30cm, 25 tờ, bìa acrylic'},
-  {ten:'Album Kim Ngân',   slug:'ab-kimngan',   dm:'album', dang:'canh', gia:'11.000.000đ', ghiChu:'35×35cm, 30 tờ, hộp gỗ kèm'},
-  {ten:'Album Mộc',        slug:'ab-moc',       dm:'album', dang:'canh', gia:'5.200.000đ',  ghiChu:'25×25cm, bìa vải lanh, tối giản'},
-  {ten:'Album Cổ Điển',    slug:'ab-codien',    dm:'album', dang:'canh', gia:'7.400.000đ',  ghiChu:'Bìa da bò thật, chữ mạ vàng'},
-  {ten:'Album Đôi',        slug:'ab-doi',       dm:'album', dang:'canh', gia:'9.800.000đ',  ghiChu:'1 album lớn + 2 album nhỏ tặng bố mẹ'},
-  {ten:'Album Mini',       slug:'ab-mini',      dm:'album', dang:'canh', gia:'2.200.000đ',  ghiChu:'15×15cm, 15 tờ, mang theo tiện'},
-  {ten:'Ảnh Phóng To',     slug:'ab-phongto',   dm:'album', dang:'canh', gia:'1.800.000đ',  ghiChu:'60×90cm, khung gỗ, treo phòng cưới'},
-  {ten:'Ảnh Để Bàn',       slug:'ab-deban',     dm:'album', dang:'canh', gia:'650.000đ',    ghiChu:'Bộ 3 khung 20×30cm'},
-  {ten:'USB Ảnh Gốc',      slug:'ab-usb',       dm:'album', dang:'canh', gia:'900.000đ',    ghiChu:'Hộp gỗ khắc tên, kèm toàn bộ file gốc'},
+  {ten:'Album Ngọc Trai',  slug:'ab-ngoctrai',  dm:'album', dang:'album', gia:'6.500.000đ',  ghiChu:'25×25cm, 20 tờ, bìa da ép kim'},
+  {ten:'Album Pha Lê',     slug:'ab-phale',     dm:'album', dang:'album', gia:'8.900.000đ',  ghiChu:'30×30cm, 25 tờ, bìa acrylic'},
+  {ten:'Album Kim Ngân',   slug:'ab-kimngan',   dm:'album', dang:'album', gia:'11.000.000đ', ghiChu:'35×35cm, 30 tờ, hộp gỗ kèm'},
+  {ten:'Album Mộc',        slug:'ab-moc',       dm:'album', dang:'album', gia:'5.200.000đ',  ghiChu:'25×25cm, bìa vải lanh, tối giản'},
+  {ten:'Album Cổ Điển',    slug:'ab-codien',    dm:'album', dang:'album', gia:'7.400.000đ',  ghiChu:'Bìa da bò thật, chữ mạ vàng'},
+  {ten:'Album Đôi',        slug:'ab-doi',       dm:'album', dang:'album', gia:'9.800.000đ',  ghiChu:'1 album lớn + 2 album nhỏ tặng bố mẹ'},
+  {ten:'Album Mini',       slug:'ab-mini',      dm:'album', dang:'album', gia:'2.200.000đ',  ghiChu:'15×15cm, 15 tờ, mang theo tiện'},
+  {ten:'Ảnh Phóng To',     slug:'ab-phongto',   dm:'album', dang:'album', gia:'1.800.000đ',  ghiChu:'60×90cm, khung gỗ, treo phòng cưới'},
+  {ten:'Ảnh Để Bàn',       slug:'ab-deban',     dm:'album', dang:'album', gia:'650.000đ',    ghiChu:'Bộ 3 khung 20×30cm'},
+  {ten:'USB Ảnh Gốc',      slug:'ab-usb',       dm:'album', dang:'album', gia:'900.000đ',    ghiChu:'Hộp gỗ khắc tên, kèm toàn bộ file gốc'},
 
   /* ───── PHÓNG SỰ CƯỚI (10) ───── */
-  {ten:'Phóng sự Nửa Ngày',   slug:'ps-nuangay',   dm:'phongsu', dang:'canh', gia:'8.000.000đ',  ghiChu:'1 thợ chính, 4 tiếng, 300 ảnh'},
-  {ten:'Phóng sự Trọn Ngày',  slug:'ps-tronngay',  dm:'phongsu', dang:'canh', gia:'15.000.000đ', ghiChu:'2 thợ, từ sáng tới tiệc tối, 800 ảnh'},
-  {ten:'Phóng sự Hai Ngày',   slug:'ps-haingay',   dm:'phongsu', dang:'canh', gia:'26.000.000đ', ghiChu:'Nhà trai + nhà gái, 3 thợ'},
-  {ten:'Lễ Ăn Hỏi',           slug:'ps-anhoi',     dm:'phongsu', dang:'canh', gia:'6.000.000đ',  ghiChu:'3 tiếng, tập trung nghi lễ'},
-  {ten:'Lễ Vu Quy',           slug:'ps-vuquy',     dm:'phongsu', dang:'canh', gia:'7.500.000đ',  ghiChu:'Từ trang điểm tới rước dâu'},
-  {ten:'Tiệc Nhà Hàng',       slug:'ps-tiec',      dm:'phongsu', dang:'canh', gia:'9.000.000đ',  ghiChu:'Sảnh tiệc, sân khấu, khách mời'},
-  {ten:'Lễ Nhà Thờ',          slug:'ps-nhatho',    dm:'phongsu', dang:'canh', gia:'7.000.000đ',  ghiChu:'Thánh lễ hôn phối, ánh sáng tự nhiên'},
-  {ten:'Quay Phim Cưới',      slug:'ps-quayphim',  dm:'phongsu', dang:'canh', gia:'12.000.000đ', ghiChu:'Video highlight 5 phút + full lễ'},
-  {ten:'Flycam',              slug:'ps-flycam',    dm:'phongsu', dang:'canh', gia:'3.500.000đ',  ghiChu:'Quay toàn cảnh, cần xin phép trước'},
-  {ten:'Chụp Nhanh Lấy Ngay', slug:'ps-layngay',   dm:'phongsu', dang:'canh', gia:'2.500.000đ',  ghiChu:'In ảnh tại chỗ tặng khách mời'},
+  {ten:'Phóng sự Nửa Ngày',   slug:'ps-nuangay',   dm:'phongsu', dang:'phongsu', gia:'8.000.000đ',  ghiChu:'1 thợ chính, 4 tiếng, 300 ảnh'},
+  {ten:'Phóng sự Trọn Ngày',  slug:'ps-tronngay',  dm:'phongsu', dang:'phongsu', gia:'15.000.000đ', ghiChu:'2 thợ, từ sáng tới tiệc tối, 800 ảnh'},
+  {ten:'Phóng sự Hai Ngày',   slug:'ps-haingay',   dm:'phongsu', dang:'phongsu', gia:'26.000.000đ', ghiChu:'Nhà trai + nhà gái, 3 thợ'},
+  {ten:'Lễ Ăn Hỏi',           slug:'ps-anhoi',     dm:'phongsu', dang:'phongsu', gia:'6.000.000đ',  ghiChu:'3 tiếng, tập trung nghi lễ'},
+  {ten:'Lễ Vu Quy',           slug:'ps-vuquy',     dm:'phongsu', dang:'phongsu', gia:'7.500.000đ',  ghiChu:'Từ trang điểm tới rước dâu'},
+  {ten:'Tiệc Nhà Hàng',       slug:'ps-tiec',      dm:'phongsu', dang:'phongsu', gia:'9.000.000đ',  ghiChu:'Sảnh tiệc, sân khấu, khách mời'},
+  {ten:'Lễ Nhà Thờ',          slug:'ps-nhatho',    dm:'phongsu', dang:'phongsu', gia:'7.000.000đ',  ghiChu:'Thánh lễ hôn phối, ánh sáng tự nhiên'},
+  {ten:'Quay Phim Cưới',      slug:'ps-quayphim',  dm:'phongsu', dang:'phongsu', gia:'12.000.000đ', ghiChu:'Video highlight 5 phút + full lễ'},
+  {ten:'Flycam',              slug:'ps-flycam',    dm:'phongsu', dang:'phongsu', gia:'3.500.000đ',  ghiChu:'Quay toàn cảnh, cần xin phép trước'},
+  {ten:'Chụp Nhanh Lấy Ngay', slug:'ps-layngay',   dm:'phongsu', dang:'phongsu', gia:'2.500.000đ',  ghiChu:'In ảnh tại chỗ tặng khách mời'},
 
   /* ───── ẢNH CƯỚI KHÁCH HÀNG (12) ───── */
-  {ten:'Minh Anh & Đức',      slug:'kh-minhanh-duc',    dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 06/2025 · Hội An'},
-  {ten:'Thu Hà & Nam',        slug:'kh-thuha-nam',      dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 08/2025 · TP.HCM'},
-  {ten:'Ngọc Trâm & Huy',     slug:'kh-ngoctram-huy',   dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 11/2025 · Đà Lạt'},
-  {ten:'Kim Chi & Tuấn',      slug:'kh-kimchi-tuan',    dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 12/2025 · Ninh Bình'},
-  {ten:'Bảo Trân & Long',     slug:'kh-baotran-long',   dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 01/2026 · Hà Nội'},
-  {ten:'Hải Yến & Phong',     slug:'kh-haiyen-phong',   dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 02/2026 · Vũng Tàu'},
-  {ten:'Thanh Vy & Khoa',     slug:'kh-thanhvy-khoa',   dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 03/2026 · Phú Quốc'},
-  {ten:'Lan Anh & Sơn',       slug:'kh-lananh-son',     dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 04/2026 · Huế'},
-  {ten:'Mai Phương & Đạt',    slug:'kh-maiphuong-dat',  dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 05/2026 · Nha Trang'},
-  {ten:'Quỳnh Như & Kiên',    slug:'kh-quynhnhu-kien',  dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 06/2026 · Sa Pa'},
-  {ten:'Tuyết Nhi & Bình',    slug:'kh-tuyetnhi-binh',  dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 07/2026 · Cần Thơ'},
-  {ten:'Diễm My & Hoàng',     slug:'kh-diemmy-hoang',   dm:'khachhang', dang:'canh', gia:'', ghiChu:'Cưới 08/2026 · TP.HCM'},
+  {ten:'Minh Anh & Đức',      slug:'kh-minhanh-duc',    dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 06/2025 · Hội An'},
+  {ten:'Thu Hà & Nam',        slug:'kh-thuha-nam',      dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 08/2025 · TP.HCM'},
+  {ten:'Ngọc Trâm & Huy',     slug:'kh-ngoctram-huy',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 11/2025 · Đà Lạt'},
+  {ten:'Kim Chi & Tuấn',      slug:'kh-kimchi-tuan',    dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 12/2025 · Ninh Bình'},
+  {ten:'Bảo Trân & Long',     slug:'kh-baotran-long',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 01/2026 · Hà Nội'},
+  {ten:'Hải Yến & Phong',     slug:'kh-haiyen-phong',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 02/2026 · Vũng Tàu'},
+  {ten:'Thanh Vy & Khoa',     slug:'kh-thanhvy-khoa',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 03/2026 · Phú Quốc'},
+  {ten:'Lan Anh & Sơn',       slug:'kh-lananh-son',     dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 04/2026 · Huế'},
+  {ten:'Mai Phương & Đạt',    slug:'kh-maiphuong-dat',  dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 05/2026 · Nha Trang'},
+  {ten:'Quỳnh Như & Kiên',    slug:'kh-quynhnhu-kien',  dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 06/2026 · Sa Pa'},
+  {ten:'Tuyết Nhi & Bình',    slug:'kh-tuyetnhi-binh',  dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 07/2026 · Cần Thơ'},
+  {ten:'Diễm My & Hoàng',     slug:'kh-diemmy-hoang',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 08/2026 · TP.HCM'},
 
   /* ───── PRE WEDDING (10) ───── */
-  {ten:'Pre-wedding Đà Lạt',   slug:'pw-dalat',    dm:'prewedding', dang:'canh', gia:'14.000.000đ', ghiChu:'2 ngày 1 đêm, 4 concept, đã gồm xe'},
-  {ten:'Pre-wedding Hội An',   slug:'pw-hoian',    dm:'prewedding', dang:'canh', gia:'16.000.000đ', ghiChu:'Phố cổ + biển An Bàng, 3 concept'},
-  {ten:'Pre-wedding Ninh Bình',slug:'pw-ninhbinh', dm:'prewedding', dang:'canh', gia:'15.000.000đ', ghiChu:'Tam Cốc, Tràng An, thuyền riêng'},
-  {ten:'Pre-wedding Sa Pa',    slug:'pw-sapa',     dm:'prewedding', dang:'canh', gia:'18.000.000đ', ghiChu:'Ruộng bậc thang, săn mây sáng sớm'},
-  {ten:'Pre-wedding Phú Quốc', slug:'pw-phuquoc',  dm:'prewedding', dang:'canh', gia:'22.000.000đ', ghiChu:'3 ngày, biển + resort, gồm vé máy bay'},
-  {ten:'Pre-wedding Studio',   slug:'pw-studio',   dm:'prewedding', dang:'canh', gia:'6.500.000đ',  ghiChu:'Trong nhà, 3 phông, nửa ngày'},
-  {ten:'Pre-wedding Sài Gòn',  slug:'pw-saigon',   dm:'prewedding', dang:'canh', gia:'8.000.000đ',  ghiChu:'Quận 1, Thủ Thiêm, chụp trong ngày'},
-  {ten:'Pre-wedding Hà Nội',   slug:'pw-hanoi',    dm:'prewedding', dang:'canh', gia:'8.500.000đ',  ghiChu:'Phố cổ, Hồ Tây, Long Biên'},
-  {ten:'Pre-wedding Concept',  slug:'pw-concept',  dm:'prewedding', dang:'canh', gia:'12.000.000đ', ghiChu:'Dựng bối cảnh riêng theo ý tưởng'},
-  {ten:'Pre-wedding Cặp Đôi',  slug:'pw-capdoi',   dm:'prewedding', dang:'canh', gia:'5.000.000đ',  ghiChu:'Gói nhẹ, 1 buổi, 1 trang phục'},
+  {ten:'Pre-wedding Đà Lạt',   slug:'pw-dalat',    dm:'prewedding', dang:'ngoaicanh', gia:'14.000.000đ', ghiChu:'2 ngày 1 đêm, 4 concept, đã gồm xe'},
+  {ten:'Pre-wedding Hội An',   slug:'pw-hoian',    dm:'prewedding', dang:'ngoaicanh', gia:'16.000.000đ', ghiChu:'Phố cổ + biển An Bàng, 3 concept'},
+  {ten:'Pre-wedding Ninh Bình',slug:'pw-ninhbinh', dm:'prewedding', dang:'ngoaicanh', gia:'15.000.000đ', ghiChu:'Tam Cốc, Tràng An, thuyền riêng'},
+  {ten:'Pre-wedding Sa Pa',    slug:'pw-sapa',     dm:'prewedding', dang:'ngoaicanh', gia:'18.000.000đ', ghiChu:'Ruộng bậc thang, săn mây sáng sớm'},
+  {ten:'Pre-wedding Phú Quốc', slug:'pw-phuquoc',  dm:'prewedding', dang:'ngoaicanh', gia:'22.000.000đ', ghiChu:'3 ngày, biển + resort, gồm vé máy bay'},
+  {ten:'Pre-wedding Studio',   slug:'pw-studio',   dm:'prewedding', dang:'ngoaicanh', gia:'6.500.000đ',  ghiChu:'Trong nhà, 3 phông, nửa ngày'},
+  {ten:'Pre-wedding Sài Gòn',  slug:'pw-saigon',   dm:'prewedding', dang:'ngoaicanh', gia:'8.000.000đ',  ghiChu:'Quận 1, Thủ Thiêm, chụp trong ngày'},
+  {ten:'Pre-wedding Hà Nội',   slug:'pw-hanoi',    dm:'prewedding', dang:'ngoaicanh', gia:'8.500.000đ',  ghiChu:'Phố cổ, Hồ Tây, Long Biên'},
+  {ten:'Pre-wedding Concept',  slug:'pw-concept',  dm:'prewedding', dang:'ngoaicanh', gia:'12.000.000đ', ghiChu:'Dựng bối cảnh riêng theo ý tưởng'},
+  {ten:'Pre-wedding Cặp Đôi',  slug:'pw-capdoi',   dm:'prewedding', dang:'ngoaicanh', gia:'5.000.000đ',  ghiChu:'Gói nhẹ, 1 buổi, 1 trang phục'},
 ];
 
 /*==DATA-END==*/
@@ -1257,7 +1547,10 @@ function anhURL(v, n){
   while(THUTU.length > 240) CACHE.delete(THUTU.shift());
   return url;
 }
-function tenBoCuc(n){ return BOCUC[(n-1) % BOCUC.length].ten; }
+function tenBoCuc(v, n){
+  const nhom = TEN_BOCUC[nhomBoCuc(v.dang)] || TEN_BOCUC.trangphuc;
+  return nhom[(n-1) % nhom.length];
+}
 
 /* hàng đợi vẽ: mỗi khung hình chỉ dựng vài tấm, tránh treo giao diện */
 const hangDoi = [];
@@ -1441,8 +1734,8 @@ function manMuc(slug){
     </section>
     <section class="shots">` + a.anh.map(n=>`
       <figure class="shot" data-k="${n-1}" style="margin:0">
-        <img alt="${a.ten} — ${tenBoCuc(n)}" data-v="${a.slug}" data-n="${n}">
-        <figcaption>${tenBoCuc(n)}</figcaption>
+        <img alt="${a.ten} — ${tenBoCuc(a, n)}" data-v="${a.slug}" data-n="${n}">
+        <figcaption>${tenBoCuc(a, n)}</figcaption>
       </figure>`).join('') + `</section>`;
   lazyIO.observe($('.cover-img img',v));
   $('[data-dm]',v).addEventListener('click',()=>{ locDM=a.dm; veTabs(); });
@@ -1478,7 +1771,7 @@ const LB={open:false,list:[],i:0,vay:null};
     if(th && !th.src) th.src = anhURL(LB.vay, LB.list[k]);
   }
   function fill(){
-    $('#lbTitle').textContent = LB.vay.ten + ' — ' + tenBoCuc(LB.list[LB.i]);
+    $('#lbTitle').textContent = LB.vay.ten + ' — ' + tenBoCuc(LB.vay, LB.list[LB.i]);
     $('#lbCount').textContent = `${LB.i+1} / ${LB.list.length}`;
     [LB.i-1,LB.i,LB.i+1].forEach(k=>{ if(k>=0&&k<LB.list.length) nap(k); });
     $$('img',thumbs).forEach((t,k)=>{ t.classList.toggle('on',k===LB.i);

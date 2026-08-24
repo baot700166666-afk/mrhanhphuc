@@ -22,8 +22,17 @@ Cấu trúc 2 tầng: **Danh mục → Mẫu / Album → Ảnh** — bấm ảnh
 App tự vẽ váy bằng canvas ngay trên máy người xem — **không có file ảnh nào**, nên cả catalogue
 1000 tấm chỉ nằm gọn trong 1 file ~58 KB. Upload 1 file là xong, khỏi kéo thư mục.
 
-Mỗi mẫu có 10 bố cục khác nhau: Toàn thân · Lệch trái · Nắng cửa sổ · Trung cảnh · Cận thân trên ·
-Chân váy · Toàn cảnh · Góc thấp · Cận nếp vải · Ngược sáng.
+**Mỗi hạng mục có hình minh hoạ riêng:**
+
+| Hạng mục | Hình vẽ | 10 bố cục |
+|---|---|---|
+| Vest | Bộ vest tối màu, ve chữ V, hàng cúc | Toàn thân · Lệch trái · Nắng cửa sổ · Trung cảnh · Cận thân trên · Chân váy · Toàn cảnh · Góc thấp · Cận nếp vải · Ngược sáng |
+| Áo dài | Áo dài đỏ, tà dài, xẻ giữa | như trên |
+| Váy Basic / Luxury | Váy xòe · Chữ A · Đuôi cá · Suông | như trên |
+| Album Wedding | Bìa da ép kim, trang mở, chồng album, ảnh khung | Bìa album · Trang trong · Chồng album · Ảnh khung · Cận gáy · Cận chi tiết · Toàn cảnh · Góc nghiêng · Mặt bìa · Ngược sáng |
+| Phóng Sự Cưới | Cổng hoa, lối đi, hàng ghế, sân khấu có đèn | Cổng hoa · Lối đi · Hàng ghế · Sân khấu · Cận nến · Toàn cảnh · Góc cao · Ánh đèn · Khoảnh khắc · Ngược sáng |
+| Ảnh Cưới Khách Hàng | Cô dâu chú rể đứng cạnh nhau, có voan | Toàn thân · Đứng cạnh · Nắng chiều · Trung cảnh · Cận đôi · … |
+| Pre wedding | Phong cảnh: mặt trời, đồi núi, mặt hồ, cặp đôi nhỏ | Bình minh · Đồi núi · Mặt hồ · Trung cảnh · Cận cảnh · Chân trời · … · Hoàng hôn |
 
 ### Khi có ảnh chụp thật
 
@@ -54,7 +63,7 @@ Mở `index.html`, tìm `const MUC = [`. Mỗi dòng là **một mục**:
 | `ten` | Tên hiện trên app |
 | `slug` | Mã không dấu — dùng cho đường dẫn và tên thư mục ảnh |
 | `dm` | Mã danh mục: `vest` `aodai` `basic` `luxury` `album` `phongsu` `khachhang` `prewedding` |
-| `dang` | Hình vẽ mẫu: `xoe` `chuA` `duoica` `suong` `aodai` `vest` `canh` |
+| `dang` | Hình vẽ: `xoe` `chuA` `duoica` `suong` `aodai` `vest` `album` `phongsu` `capdoi` `ngoaicanh` |
 | `gia` | Để `''` nếu không muốn hiện giá |
 | `ghiChu` | Mô tả ngắn |
 
@@ -127,7 +136,7 @@ Tất cả nằm ở danh sách trong `#/admin`:
 | **Đổi tên** | Bấm **SỬA** → ô **TÊN** |
 | **Chuyển sang danh mục khác** | Ô **DANH MỤC** — chọn 1 trong 8 |
 | **Đổi giá / ghi chú** | Cùng form |
-| **Đổi hình vẽ mẫu** | Ô **HÌNH VẼ MẪU** — Váy xòe / Chữ A / Đuôi cá / Suông / Áo dài / Vest / Bối cảnh |
+| **Đổi hình vẽ mẫu** | Ô **HÌNH VẼ MẪU** — Váy xòe / Chữ A / Đuôi cá / Suông / Áo dài / Vest / Album cưới / Bối cảnh lễ / Cô dâu chú rể / Phong cảnh |
 | **Thêm mục mới** | Nút **+ Thêm mục** |
 | **Xoá** | Mở form → **Xoá mục này** |
 | **Đổi thứ tự** | Nút **↑ ↓** bên phải mỗi dòng |
@@ -181,7 +190,7 @@ Cần thì nói mình, mình dựng cho.
 Upload đè 3 file `index.html`, `sw.js`, `manifest.webmanifest` vào repo → Commit → đợi 1 phút.
 
 > **Bắt buộc mỗi lần cập nhật:** mở `sw.js` tăng số phiên bản
-> `const CACHE = 'mrhanhphuc-v8';` → `'mrhanhphuc-v9';`
+> `const CACHE = 'mrhanhphuc-v9';` → `'mrhanhphuc-v10';`
 > Không làm thì máy đã cài app vẫn thấy bản cũ.
 
 ## 📱 Cài lên máy nhân viên
