@@ -1049,17 +1049,13 @@ const DANH_MUC = [
 ];
 
 const MUC = [
-  /* ───── VEST (10) ───── */
-  {ten:'Vest Hạnh Phúc',     slug:'vest-hanhphuc',   dm:'vest', dang:'vest', gia:'3.500.000đ', ghiChu:'Vest đen 2 khuy, len pha, dáng slim'},
-  {ten:'Vest Viên Mãn',      slug:'vest-vienman',    dm:'vest', dang:'vest', gia:'4.200.000đ', ghiChu:'Tuxedo ve satin, nơ đen kèm theo'},
-  {ten:'Vest Trăm Năm',      slug:'vest-tramnam',    dm:'vest', dang:'vest', gia:'3.800.000đ', ghiChu:'Xanh navy, ve nhọn, 3 mảnh'},
-  {ten:'Vest Sắt Son',       slug:'vest-satson',     dm:'vest', dang:'vest', gia:'3.200.000đ', ghiChu:'Ghi xám, dáng cơ bản, dễ mặc'},
-  {ten:'Vest Bạch Kim',      slug:'vest-bachkim',    dm:'vest', dang:'vest', gia:'4.800.000đ', ghiChu:'Trắng ngà, ve khăn, tiệc tối'},
-  {ten:'Vest Cát Tường',     slug:'vest-cattuong',   dm:'vest', dang:'vest', gia:'3.600.000đ', ghiChu:'Be sáng, vải linen, cưới ngoài trời'},
-  {ten:'Vest Kim Ngân',      slug:'vest-kimngan',    dm:'vest', dang:'vest', gia:'5.200.000đ', ghiChu:'Nhung đỏ đô, ve satin, nổi bật'},
-  {ten:'Vest Thịnh Vượng',   slug:'vest-thinhvuong', dm:'vest', dang:'vest', gia:'4.500.000đ', ghiChu:'Kẻ sọc nhỏ, cổ điển Anh quốc'},
-  {ten:'Vest Bách Niên',     slug:'vest-bachnien',   dm:'vest', dang:'vest', gia:'3.900.000đ', ghiChu:'Đen tuyền, ve nhọn, form ôm'},
-  {ten:'Vest Phù Rể',        slug:'vest-phure',      dm:'vest', dang:'vest', gia:'1.500.000đ', ghiChu:'Đồng bộ nhóm, đủ size S–XXL'},
+  /* ───── VEST — ẢNH THẬT (VEST 2026, 52 ảnh) ───── */
+  {ten:'Vest Nhập Trắng', slug:'vest-nhap-trang', dm:'vest', dang:'vest', gia:'', ghiChu:'Hàng nhập tông trắng – ngà, ve xuôi và ve nhọn', soAnh:20, anhNgoai:true},
+  {ten:'Vest Nhập Đen',   slug:'vest-nhap-den',   dm:'vest', dang:'vest', gia:'', ghiChu:'Hàng nhập tông đen – navy, tuxedo và 3 mảnh', soAnh:19, anhNgoai:true},
+  {ten:'Vest Đen',        slug:'vest-den',        dm:'vest', dang:'vest', gia:'', ghiChu:'Vest đen cơ bản, dễ mặc, hợp mọi dáng người', soAnh:5, anhNgoai:true},
+  {ten:'Vest Trắng',      slug:'vest-trang',      dm:'vest', dang:'vest', gia:'', ghiChu:'Vest trắng tinh, nổi bật khi chụp ngoại cảnh', soAnh:4, anhNgoai:true},
+  {ten:'Vest Kem',        slug:'vest-kem',        dm:'vest', dang:'vest', gia:'', ghiChu:'Tông kem ấm, hợp tiệc ngoài trời ban ngày', soAnh:2, anhNgoai:true},
+  {ten:'Vest Xám / Be',   slug:'vest-xam',        dm:'vest', dang:'vest', gia:'', ghiChu:'Tông trung tính, trẻ trung, dễ phối phụ kiện', soAnh:2, anhNgoai:true},
 
   /* ───── ÁO DÀI (12) ───── */
   {ten:'Áo dài Hỷ Tín',      slug:'ad-hytin',      dm:'aodai', dang:'aodai', gia:'3.500.000đ', ghiChu:'Gấm đỏ thêu rồng phượng, kèm mấn'},
@@ -1547,6 +1543,23 @@ function anhURL(v, n){
   while(THUTU.length > 240) CACHE.delete(THUTU.shift());
   return url;
 }
+/* Ảnh thật thiếu (chưa upload / sai đường dẫn) → vẽ tạm hình minh hoạ,
+   để app không bao giờ hiện ô trắng trước mặt khách. */
+function veDuPhong(im){
+  const v = timVay(im.dataset.v); if(!v) return;
+  const n = +im.dataset.n || 1;
+  const cv = document.createElement('canvas');
+  veAnh(cv, v.dang, v.seed, n-1);
+  im.src = cv.toDataURL('image/jpeg', .82);
+  im.classList.add('ready');
+}
+addEventListener('error', e=>{
+  const im = e.target;
+  if(!im || im.tagName !== 'IMG' || im.dataset.fb || !im.dataset.v) return;
+  im.dataset.fb = '1';
+  veDuPhong(im);
+}, true);
+
 function tenBoCuc(v, n){
   const nhom = TEN_BOCUC[nhomBoCuc(v.dang)] || TEN_BOCUC.trangphuc;
   return nhom[(n-1) % nhom.length];
@@ -1571,8 +1584,8 @@ const lazyIO = new IntersectionObserver(es=>{
     xepHang(()=>{
       const im = el.tagName==='IMG' ? el : $('img', el);
       if(!im || !v) return;
+      im.dataset.v = v.slug; im.dataset.n = n;
       im.onload = ()=>im.classList.add('ready');
-      im.onerror = ()=>im.classList.add('ready');
       im.src = anhURL(v, n);
       if(im.complete) im.classList.add('ready');
     });
@@ -1609,7 +1622,7 @@ function drawFav(){
   }
   body.innerHTML = VAY.filter(v=>favs.has(v.slug)).map(v=>`
     <div class="dr-row" data-go="${v.slug}">
-      <img alt="" src="${anhURL(v,1)}">
+      <img alt="" data-v="${v.slug}" data-n="1" src="${anhURL(v,1)}">
       <div><b>${v.ten}</b>
         <small class="price">${v.gia}</small>
         <small class="note" style="color:var(--muted);display:block">${v.dmTen}</small></div>
@@ -1766,9 +1779,9 @@ const LB={open:false,list:[],i:0,vay:null};
   function rz(){ z=1;px=0;py=0; $$('.lb-item img',track).forEach(i=>i.style.transform=''); }
   function nap(k){
     const im=$$('.lb-item img',track)[k];
-    if(im && !im.src) im.src = anhURL(LB.vay, LB.list[k]);
+    if(im && !im.src){ im.dataset.v=LB.vay.slug; im.dataset.n=LB.list[k]; im.src=anhURL(LB.vay, LB.list[k]); }
     const th=$$('img',thumbs)[k];
-    if(th && !th.src) th.src = anhURL(LB.vay, LB.list[k]);
+    if(th && !th.src){ th.dataset.v=LB.vay.slug; th.dataset.n=LB.list[k]; th.src=anhURL(LB.vay, LB.list[k]); }
   }
   function fill(){
     $('#lbTitle').textContent = LB.vay.ten + ' — ' + tenBoCuc(LB.vay, LB.list[LB.i]);
