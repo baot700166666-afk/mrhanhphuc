@@ -1036,21 +1036,18 @@ const TEN_DANG = {
   album:'Album cưới', phongsu:'Bối cảnh lễ', capdoi:'Cô dâu chú rể', ngoaicanh:'Phong cảnh'
 };
 
-/* ── 8 DANH MỤC CHÍNH ── */
+/* ── DANH MỤC ── */
 const DANH_MUC = [
   {id:'vest',       ten:'Vest'},
-  {id:'aodai',      ten:'Áo dài'},
   {id:'basic',      ten:'Váy Basic'},
   {id:'luxury',     ten:'Váy Luxury'},
-  {id:'album',      ten:'Album Wedding'},
-  {id:'phongsu',    ten:'Phóng Sự Cưới'},
   {id:'makeup',     ten:'Make up & Làm tóc'},
   {id:'khachhang',  ten:'Ảnh Cưới Khách Hàng'},
   {id:'prewedding', ten:'Pre wedding'},
 ];
 
 const MUC = [
-  /* ───── VEST — ẢNH THẬT (VEST 2026, 52 ảnh) ───── */
+  /* ───── VEST (52 ảnh) ───── */
   {ten:'Vest Nhập Trắng', slug:'vest-nhap-trang', dm:'vest', dang:'vest', gia:'', ghiChu:'Hàng nhập tông trắng – ngà, ve xuôi và ve nhọn', soAnh:20, anhNgoai:true},
   {ten:'Vest Nhập Đen',   slug:'vest-nhap-den',   dm:'vest', dang:'vest', gia:'', ghiChu:'Hàng nhập tông đen – navy, tuxedo và 3 mảnh', soAnh:19, anhNgoai:true},
   {ten:'Vest Đen',        slug:'vest-den',        dm:'vest', dang:'vest', gia:'', ghiChu:'Vest đen cơ bản, dễ mặc, hợp mọi dáng người', soAnh:5, anhNgoai:true},
@@ -1058,47 +1055,13 @@ const MUC = [
   {ten:'Vest Kem',        slug:'vest-kem',        dm:'vest', dang:'vest', gia:'', ghiChu:'Tông kem ấm, hợp tiệc ngoài trời ban ngày', soAnh:2, anhNgoai:true},
   {ten:'Vest Xám / Be',   slug:'vest-xam',        dm:'vest', dang:'vest', gia:'', ghiChu:'Tông trung tính, trẻ trung, dễ phối phụ kiện', soAnh:2, anhNgoai:true},
 
-  /* ───── ÁO DÀI (12) ───── */
-  {ten:'Áo dài Hỷ Tín',      slug:'ad-hytin',      dm:'aodai', dang:'aodai', gia:'3.500.000đ', ghiChu:'Gấm đỏ thêu rồng phượng, kèm mấn'},
-  {ten:'Áo dài Loan Phượng', slug:'ad-loanphuong', dm:'aodai', dang:'aodai', gia:'4.200.000đ', ghiChu:'Đỏ đô, thêu tay kim tuyến, tà dài'},
-  {ten:'Áo dài Tơ Hồng',     slug:'ad-tohong',     dm:'aodai', dang:'aodai', gia:'2.900.000đ', ghiChu:'Hồng phấn, lụa tơ tằm, nhẹ nhàng'},
-  {ten:'Áo dài Vu Quy',      slug:'ad-vuquy',      dm:'aodai', dang:'aodai', gia:'3.800.000đ', ghiChu:'Đỏ truyền thống, cổ cao, tay dài'},
-  {ten:'Áo dài Nghi Gia',    slug:'ad-nghigia',    dm:'aodai', dang:'aodai', gia:'3.200.000đ', ghiChu:'Vàng đồng, hoa văn chìm, sang trọng'},
-  {ten:'Áo dài Trắng Ngọc',  slug:'ad-trangngoc',  dm:'aodai', dang:'aodai', gia:'2.600.000đ', ghiChu:'Trắng ngà, đính ngọc trai, tinh khôi'},
-  {ten:'Áo dài Cách Tân',    slug:'ad-cachtan',    dm:'aodai', dang:'aodai', gia:'1.800.000đ', ghiChu:'Dáng suông, lụa trơn, trẻ trung'},
-  {ten:'Áo dài Bê Tráp Nữ',  slug:'ad-betrap-nu',  dm:'aodai', dang:'aodai', gia:'450.000đ',   ghiChu:'Thuê theo bộ, đủ size, nhiều màu'},
-  {ten:'Áo dài Bê Tráp Nam', slug:'ad-betrap-nam', dm:'aodai', dang:'aodai', gia:'450.000đ',   ghiChu:'Khăn đóng kèm, đồng bộ với nữ'},
-  {ten:'Áo dài Mẹ Cô Dâu',   slug:'ad-meco-dau',   dm:'aodai', dang:'aodai', gia:'1.200.000đ', ghiChu:'Gấm tím / xanh, dáng rộng thoải mái'},
-  {ten:'Áo dài Ăn Hỏi',      slug:'ad-anhoi',      dm:'aodai', dang:'aodai', gia:'2.400.000đ', ghiChu:'Đỏ nhung, thêu chim hạc, kèm khăn'},
-  {ten:'Áo dài Chụp Tết',    slug:'ad-tet',        dm:'aodai', dang:'aodai', gia:'800.000đ',   ghiChu:'Nhiều màu, thuê theo buổi chụp'},
-
-  /* ───── VÁY BASIC — ẢNH THẬT (47 ảnh) ───── */
+  /* ───── VÁY BASIC (47 ảnh) ───── */
   {ten:'Basic Voan Xoè',   slug:'bs-voan',  dm:'basic', dang:'xoe',    gia:'', ghiChu:'Voan tơ xoè bồng, thân trơn, dễ mặc', soAnh:18, anhNgoai:true},
   {ten:'Basic Ren Kim Sa', slug:'bs-ren',   dm:'basic', dang:'xoe',    gia:'', ghiChu:'Ren nổi và kim sa lấp lánh, tay dài ren', soAnh:18, anhNgoai:true},
   {ten:'Basic Satin Trơn', slug:'bs-satin', dm:'basic', dang:'xoe',    gia:'', ghiChu:'Satin bóng tối giản, không đính kết', soAnh:9,  anhNgoai:true},
   {ten:'Basic Dáng Ôm',    slug:'bs-om',    dm:'basic', dang:'duoica', gia:'', ghiChu:'Ôm eo, đuôi cá nhẹ, tôn dáng', soAnh:2,  anhNgoai:true},
 
-  /* ───── VÁY BASIC — mẫu vẽ (18) ───── */
-  {ten:'An Nhiên',    slug:'bs-annhien',    dm:'basic', dang:'suong',  gia:'2.800.000đ', ghiChu:'Suông tối giản, vai vuông'},
-  {ten:'Bình An',     slug:'bs-binhan',     dm:'basic', dang:'suong',  gia:'2.500.000đ', ghiChu:'Kín đáo, tay lỡ, đi lễ nhà thờ'},
-  {ten:'Duyên Lành',  slug:'bs-duyenlanh',  dm:'basic', dang:'chuA',   gia:'3.200.000đ', ghiChu:'Chữ A cơ bản, hợp mọi vóc dáng'},
-  {ten:'Thanh Tân',   slug:'bs-thanhtan',   dm:'basic', dang:'chuA',   gia:'3.000.000đ', ghiChu:'Cúp ngực, tulle nhẹ, dễ di chuyển'},
-  {ten:'Nắng Mai',    slug:'bs-nangmai',    dm:'basic', dang:'chuA',   gia:'3.400.000đ', ghiChu:'Trễ vai, ren mảnh ở thân trên'},
-  {ten:'Sương Sớm',   slug:'bs-suongsom',   dm:'basic', dang:'suong',  gia:'2.700.000đ', ghiChu:'Lụa mờ, dáng thẳng, thanh lịch'},
-  {ten:'Mộc Lan',     slug:'bs-moclan',     dm:'basic', dang:'suong',  gia:'2.900.000đ', ghiChu:'Cổ tim, tay phồng nhẹ'},
-  {ten:'Nhã An',      slug:'bs-nhaan',      dm:'basic', dang:'chuA',   gia:'3.100.000đ', ghiChu:'Xẻ tà nhẹ, tôn dáng người nhỏ'},
-  {ten:'Thảo Nguyên', slug:'bs-thaonguyen', dm:'basic', dang:'chuA',   gia:'3.300.000đ', ghiChu:'Voan bay, hợp chụp ngoại cảnh'},
-  {ten:'Tình Thâm',   slug:'bs-tinhtham',   dm:'basic', dang:'suong',  gia:'2.600.000đ', ghiChu:'Tay dài ren, cổ thuyền'},
-  {ten:'Chung Đôi',   slug:'bs-chungdoi',   dm:'basic', dang:'chuA',   gia:'3.500.000đ', ghiChu:'Nơ eo bản nhỏ, chân váy xếp ly'},
-  {ten:'Vĩnh Kết',    slug:'bs-vinhket',    dm:'basic', dang:'duoica', gia:'3.900.000đ', ghiChu:'Đuôi cá nhẹ, ôm vừa phải'},
-  {ten:'Hương Cau',   slug:'bs-huongcau',   dm:'basic', dang:'suong',  gia:'2.400.000đ', ghiChu:'Dáng slip, lụa mát, tiệc nhỏ'},
-  {ten:'Trắng Ngà',   slug:'bs-trangnga',   dm:'basic', dang:'chuA',   gia:'2.800.000đ', ghiChu:'Cổ vuông, không đính kết'},
-  {ten:'Mây Nhẹ',     slug:'bs-maynhe',     dm:'basic', dang:'chuA',   gia:'3.000.000đ', ghiChu:'Tulle 3 lớp, phồng vừa'},
-  {ten:'Sen Hồng',    slug:'bs-senhong',    dm:'basic', dang:'suong',  gia:'2.700.000đ', ghiChu:'Ánh hồng nhạt, cổ yếm'},
-  {ten:'Tường Vy',    slug:'bs-tuongvy',    dm:'basic', dang:'chuA',   gia:'3.200.000đ', ghiChu:'Ren hoa nhỏ toàn thân'},
-  {ten:'Đồng Tâm',    slug:'bs-dongtam',    dm:'basic', dang:'duoica', gia:'3.700.000đ', ghiChu:'Ôm eo, xoè từ gối'},
-
-  /* ───── VÁY LUXURY — ẢNH THẬT (86 ảnh) ───── */
+  /* ───── VÁY LUXURY (159 ảnh) ───── */
   {ten:'Váy Satin Trơn',      slug:'lx-satin',            dm:'luxury', dang:'xoe',    gia:'', ghiChu:'Satin bóng, dáng xoè tối giản, ít đính kết', soAnh:17, anhNgoai:true},
   {ten:'Váy Đính Đá — Lookbook', slug:'lx-dinhda-lookbook', dm:'luxury', dang:'xoe', gia:'', ghiChu:'Ảnh mẫu couture, đính đá toàn thân, đuôi dài', soAnh:22, anhNgoai:true},
   {ten:'Váy Đính Đá — Showroom', slug:'lx-dinhda-showroom', dm:'luxury', dang:'xoe', gia:'', ghiChu:'Ảnh thử tại showroom, khách mặc thật', soAnh:33, anhNgoai:true},
@@ -1107,67 +1070,17 @@ const MUC = [
   {ten:'Váy Chụp — Bộ 1',     slug:'lx-chup-a',           dm:'luxury', dang:'xoe',    gia:'', ghiChu:'Ảnh chụp dáng váy tại studio, phần 1', soAnh:37, anhNgoai:true},
   {ten:'Váy Chụp — Bộ 2',     slug:'lx-chup-b',           dm:'luxury', dang:'xoe',    gia:'', ghiChu:'Ảnh chụp dáng váy tại studio, phần 2', soAnh:36, anhNgoai:true},
 
-  /* ───── MAKE UP & LÀM TÓC — ẢNH THẬT (68 ảnh) ───── */
+  /* ───── MAKE UP & LÀM TÓC (68 ảnh) ───── */
   {ten:'Tóc Xoã Sóng',        slug:'mk-toc-xoa', dm:'makeup', dang:'capdoi', gia:'', ghiChu:'Make up trong veo, tóc xoã sóng nước', soAnh:28, anhNgoai:true},
   {ten:'Tóc Búi',             slug:'mk-buitoc',  dm:'makeup', dang:'capdoi', gia:'', ghiChu:'Búi cao – búi thấp, gọn gàng sang trọng', soAnh:22, anhNgoai:true},
   {ten:'Cận Cảnh & Concept',  slug:'mk-concept', dm:'makeup', dang:'capdoi', gia:'', ghiChu:'Ảnh cận layout make up, concept riêng', soAnh:18, anhNgoai:true},
 
-  /* ───── ALBUM WEDDING (10) ───── */
-  {ten:'Album Ngọc Trai',  slug:'ab-ngoctrai',  dm:'album', dang:'album', gia:'6.500.000đ',  ghiChu:'25×25cm, 20 tờ, bìa da ép kim'},
-  {ten:'Album Pha Lê',     slug:'ab-phale',     dm:'album', dang:'album', gia:'8.900.000đ',  ghiChu:'30×30cm, 25 tờ, bìa acrylic'},
-  {ten:'Album Kim Ngân',   slug:'ab-kimngan',   dm:'album', dang:'album', gia:'11.000.000đ', ghiChu:'35×35cm, 30 tờ, hộp gỗ kèm'},
-  {ten:'Album Mộc',        slug:'ab-moc',       dm:'album', dang:'album', gia:'5.200.000đ',  ghiChu:'25×25cm, bìa vải lanh, tối giản'},
-  {ten:'Album Cổ Điển',    slug:'ab-codien',    dm:'album', dang:'album', gia:'7.400.000đ',  ghiChu:'Bìa da bò thật, chữ mạ vàng'},
-  {ten:'Album Đôi',        slug:'ab-doi',       dm:'album', dang:'album', gia:'9.800.000đ',  ghiChu:'1 album lớn + 2 album nhỏ tặng bố mẹ'},
-  {ten:'Album Mini',       slug:'ab-mini',      dm:'album', dang:'album', gia:'2.200.000đ',  ghiChu:'15×15cm, 15 tờ, mang theo tiện'},
-  {ten:'Ảnh Phóng To',     slug:'ab-phongto',   dm:'album', dang:'album', gia:'1.800.000đ',  ghiChu:'60×90cm, khung gỗ, treo phòng cưới'},
-  {ten:'Ảnh Để Bàn',       slug:'ab-deban',     dm:'album', dang:'album', gia:'650.000đ',    ghiChu:'Bộ 3 khung 20×30cm'},
-  {ten:'USB Ảnh Gốc',      slug:'ab-usb',       dm:'album', dang:'album', gia:'900.000đ',    ghiChu:'Hộp gỗ khắc tên, kèm toàn bộ file gốc'},
-
-  /* ───── PHÓNG SỰ CƯỚI (10) ───── */
-  {ten:'Phóng sự Nửa Ngày',   slug:'ps-nuangay',   dm:'phongsu', dang:'phongsu', gia:'8.000.000đ',  ghiChu:'1 thợ chính, 4 tiếng, 300 ảnh'},
-  {ten:'Phóng sự Trọn Ngày',  slug:'ps-tronngay',  dm:'phongsu', dang:'phongsu', gia:'15.000.000đ', ghiChu:'2 thợ, từ sáng tới tiệc tối, 800 ảnh'},
-  {ten:'Phóng sự Hai Ngày',   slug:'ps-haingay',   dm:'phongsu', dang:'phongsu', gia:'26.000.000đ', ghiChu:'Nhà trai + nhà gái, 3 thợ'},
-  {ten:'Lễ Ăn Hỏi',           slug:'ps-anhoi',     dm:'phongsu', dang:'phongsu', gia:'6.000.000đ',  ghiChu:'3 tiếng, tập trung nghi lễ'},
-  {ten:'Lễ Vu Quy',           slug:'ps-vuquy',     dm:'phongsu', dang:'phongsu', gia:'7.500.000đ',  ghiChu:'Từ trang điểm tới rước dâu'},
-  {ten:'Tiệc Nhà Hàng',       slug:'ps-tiec',      dm:'phongsu', dang:'phongsu', gia:'9.000.000đ',  ghiChu:'Sảnh tiệc, sân khấu, khách mời'},
-  {ten:'Lễ Nhà Thờ',          slug:'ps-nhatho',    dm:'phongsu', dang:'phongsu', gia:'7.000.000đ',  ghiChu:'Thánh lễ hôn phối, ánh sáng tự nhiên'},
-  {ten:'Quay Phim Cưới',      slug:'ps-quayphim',  dm:'phongsu', dang:'phongsu', gia:'12.000.000đ', ghiChu:'Video highlight 5 phút + full lễ'},
-  {ten:'Flycam',              slug:'ps-flycam',    dm:'phongsu', dang:'phongsu', gia:'3.500.000đ',  ghiChu:'Quay toàn cảnh, cần xin phép trước'},
-  {ten:'Chụp Nhanh Lấy Ngay', slug:'ps-layngay',   dm:'phongsu', dang:'phongsu', gia:'2.500.000đ',  ghiChu:'In ảnh tại chỗ tặng khách mời'},
-
-  /* ───── ẢNH CƯỚI KHÁCH HÀNG — ẢNH THẬT (72 ảnh) ───── */
+  /* ───── ẢNH CƯỚI KHÁCH HÀNG (72 ảnh) ───── */
   {ten:'Khách Hàng — Bộ 1', slug:'kh-studio-a', dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cô dâu chú rể chụp tại studio, phần 1', soAnh:36, anhNgoai:true},
   {ten:'Khách Hàng — Bộ 2', slug:'kh-studio-b', dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cô dâu chú rể chụp tại studio, phần 2', soAnh:36, anhNgoai:true},
 
-  /* ───── ẢNH CƯỚI KHÁCH HÀNG — mẫu vẽ (12) ───── */
-  {ten:'Minh Anh & Đức',      slug:'kh-minhanh-duc',    dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 06/2025 · Hội An'},
-  {ten:'Thu Hà & Nam',        slug:'kh-thuha-nam',      dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 08/2025 · TP.HCM'},
-  {ten:'Ngọc Trâm & Huy',     slug:'kh-ngoctram-huy',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 11/2025 · Đà Lạt'},
-  {ten:'Kim Chi & Tuấn',      slug:'kh-kimchi-tuan',    dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 12/2025 · Ninh Bình'},
-  {ten:'Bảo Trân & Long',     slug:'kh-baotran-long',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 01/2026 · Hà Nội'},
-  {ten:'Hải Yến & Phong',     slug:'kh-haiyen-phong',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 02/2026 · Vũng Tàu'},
-  {ten:'Thanh Vy & Khoa',     slug:'kh-thanhvy-khoa',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 03/2026 · Phú Quốc'},
-  {ten:'Lan Anh & Sơn',       slug:'kh-lananh-son',     dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 04/2026 · Huế'},
-  {ten:'Mai Phương & Đạt',    slug:'kh-maiphuong-dat',  dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 05/2026 · Nha Trang'},
-  {ten:'Quỳnh Như & Kiên',    slug:'kh-quynhnhu-kien',  dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 06/2026 · Sa Pa'},
-  {ten:'Tuyết Nhi & Bình',    slug:'kh-tuyetnhi-binh',  dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 07/2026 · Cần Thơ'},
-  {ten:'Diễm My & Hoàng',     slug:'kh-diemmy-hoang',   dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cưới 08/2026 · TP.HCM'},
-
-  /* ───── PRE WEDDING — ẢNH THẬT (29 ảnh) ───── */
+  /* ───── PRE WEDDING (29 ảnh) ───── */
   {ten:'Pre-wedding Ngoại Cảnh', slug:'pw-ngoaicanh', dm:'prewedding', dang:'ngoaicanh', gia:'', ghiChu:'Ảnh thật chụp ngoại cảnh: vườn, biển, phố, hoàng hôn', soAnh:29, anhNgoai:true},
-
-  /* ───── PRE WEDDING — gói dịch vụ (10) ───── */
-  {ten:'Pre-wedding Đà Lạt',   slug:'pw-dalat',    dm:'prewedding', dang:'ngoaicanh', gia:'14.000.000đ', ghiChu:'2 ngày 1 đêm, 4 concept, đã gồm xe'},
-  {ten:'Pre-wedding Hội An',   slug:'pw-hoian',    dm:'prewedding', dang:'ngoaicanh', gia:'16.000.000đ', ghiChu:'Phố cổ + biển An Bàng, 3 concept'},
-  {ten:'Pre-wedding Ninh Bình',slug:'pw-ninhbinh', dm:'prewedding', dang:'ngoaicanh', gia:'15.000.000đ', ghiChu:'Tam Cốc, Tràng An, thuyền riêng'},
-  {ten:'Pre-wedding Sa Pa',    slug:'pw-sapa',     dm:'prewedding', dang:'ngoaicanh', gia:'18.000.000đ', ghiChu:'Ruộng bậc thang, săn mây sáng sớm'},
-  {ten:'Pre-wedding Phú Quốc', slug:'pw-phuquoc',  dm:'prewedding', dang:'ngoaicanh', gia:'22.000.000đ', ghiChu:'3 ngày, biển + resort, gồm vé máy bay'},
-  {ten:'Pre-wedding Studio',   slug:'pw-studio',   dm:'prewedding', dang:'ngoaicanh', gia:'6.500.000đ',  ghiChu:'Trong nhà, 3 phông, nửa ngày'},
-  {ten:'Pre-wedding Sài Gòn',  slug:'pw-saigon',   dm:'prewedding', dang:'ngoaicanh', gia:'8.000.000đ',  ghiChu:'Quận 1, Thủ Thiêm, chụp trong ngày'},
-  {ten:'Pre-wedding Hà Nội',   slug:'pw-hanoi',    dm:'prewedding', dang:'ngoaicanh', gia:'8.500.000đ',  ghiChu:'Phố cổ, Hồ Tây, Long Biên'},
-  {ten:'Pre-wedding Concept',  slug:'pw-concept',  dm:'prewedding', dang:'ngoaicanh', gia:'12.000.000đ', ghiChu:'Dựng bối cảnh riêng theo ý tưởng'},
-  {ten:'Pre-wedding Cặp Đôi',  slug:'pw-capdoi',   dm:'prewedding', dang:'ngoaicanh', gia:'5.000.000đ',  ghiChu:'Gói nhẹ, 1 buổi, 1 trang phục'},
 ];
 
 /*==DATA-END==*/
