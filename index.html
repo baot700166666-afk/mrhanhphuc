@@ -1026,7 +1026,7 @@ function veAnh(canvas, dang, seed, sttAnh){
 const MA_QUAN_TRI = 'f14a29150921dd14051e44ec50daa00e62e8a21bc6cbb212ca121987412d8717';
 
 const DEMO = true;   // true = ảnh do máy vẽ. Có ảnh thật rồi thì đổi false
-                     // (khi false, app đọc ảnh tại  quantrong/<slug>/1.jpg … 10.jpg)
+                     // (khi false, app đọc ảnh tại  anh/<slug>/1.jpg … 10.jpg)
 
 const SO_ANH = 10;   // số ảnh mặc định mỗi mẫu
 
@@ -1317,7 +1317,7 @@ function taoZip(files){                         // files: [{ten, data:Uint8Array
 function xuatZip(){
   const files = [];
   MUC.forEach(m=>{
-    (m.anh||[]).forEach((u,i)=>{ if(u) files.push({ten:`quantrong/${m.slug}/${i+1}.jpg`, data:b64ToU8(u)}); });
+    (m.anh||[]).forEach((u,i)=>{ if(u) files.push({ten:`anh/${m.slug}/${i+1}.jpg`, data:b64ToU8(u)}); });
   });
   if(!files.length) return window.__toast('Chưa có ảnh nào được tải lên');
   taiVe('anh.zip', taoZip(files));
@@ -1541,7 +1541,7 @@ const timVay = s => VAY.find(v=>v.slug===s);
 /* ────────── ảnh: vẽ bằng canvas rồi nhớ lại ────────── */
 function anhURL(v, n){
   if(v.anhRieng && v.anhRieng[n-1]) return v.anhRieng[n-1];
-  if(v.anhNgoai || !DEMO) return `./quantrong/${v.slug}/${n}.jpg`;
+  if(v.anhNgoai || !DEMO) return `./anh/${v.slug}/${n}.jpg`;
   const key = v.slug+'|'+n;
   if(CACHE.has(key)) return CACHE.get(key);
   const cv = document.createElement('canvas');
