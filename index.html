@@ -1041,9 +1041,8 @@ const DANH_MUC = [
   {id:'vest',       ten:'Vest'},
   {id:'basic',      ten:'Váy Basic'},
   {id:'luxury',     ten:'Váy Luxury'},
+  {id:'vaychup',    ten:'Váy Chụp'},
   {id:'makeup',     ten:'Make up & Làm tóc'},
-  {id:'khachhang',  ten:'Ảnh Cưới Khách Hàng'},
-  {id:'prewedding', ten:'Pre wedding'},
 ];
 
 const MUC = [
@@ -1067,20 +1066,15 @@ const MUC = [
   {ten:'Váy Đính Đá — Showroom', slug:'lx-dinhda-showroom', dm:'luxury', dang:'xoe', gia:'', ghiChu:'Ảnh thử tại showroom, khách mặc thật', soAnh:33, anhNgoai:true},
   {ten:'Váy Ren Hoa',         slug:'lx-ren',              dm:'luxury', dang:'chuA',   gia:'', ghiChu:'Ren nổi, tay dài ren, nhẹ nhàng nữ tính', soAnh:8, anhNgoai:true},
   {ten:'Váy Đuôi Cá & Xẻ Tà', slug:'lx-duoica',           dm:'luxury', dang:'duoica', gia:'', ghiChu:'Ôm eo tôn dáng, đuôi cá và xẻ tà cao', soAnh:6, anhNgoai:true},
-  {ten:'Váy Chụp — Bộ 1',     slug:'lx-chup-a',           dm:'luxury', dang:'xoe',    gia:'', ghiChu:'Ảnh chụp dáng váy tại studio, phần 1', soAnh:37, anhNgoai:true},
-  {ten:'Váy Chụp — Bộ 2',     slug:'lx-chup-b',           dm:'luxury', dang:'xoe',    gia:'', ghiChu:'Ảnh chụp dáng váy tại studio, phần 2', soAnh:36, anhNgoai:true},
+
+  /* ───── VÁY CHỤP (174 ảnh) ───── */
+  {ten:'Váy Chụp', slug:'vay-chup', dm:'vaychup', dang:'xoe', gia:'', ghiChu:'Toàn bộ ảnh Váy Chụp Mr Hạnh Phúc', soAnh:174, anhNgoai:true,
+   nguon:[['lx-chup-a',37],['lx-chup-b',36],['kh-studio-a',36],['kh-studio-b',36],['pw-ngoaicanh',29]]},
 
   /* ───── MAKE UP & LÀM TÓC (68 ảnh) ───── */
   {ten:'Tóc Xoã Sóng',        slug:'mk-toc-xoa', dm:'makeup', dang:'capdoi', gia:'', ghiChu:'Make up trong veo, tóc xoã sóng nước', soAnh:28, anhNgoai:true},
   {ten:'Tóc Búi',             slug:'mk-buitoc',  dm:'makeup', dang:'capdoi', gia:'', ghiChu:'Búi cao – búi thấp, gọn gàng sang trọng', soAnh:22, anhNgoai:true},
   {ten:'Cận Cảnh & Concept',  slug:'mk-concept', dm:'makeup', dang:'capdoi', gia:'', ghiChu:'Ảnh cận layout make up, concept riêng', soAnh:18, anhNgoai:true},
-
-  /* ───── ẢNH CƯỚI KHÁCH HÀNG (72 ảnh) ───── */
-  {ten:'Khách Hàng — Bộ 1', slug:'kh-studio-a', dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cô dâu chú rể chụp tại studio, phần 1', soAnh:36, anhNgoai:true},
-  {ten:'Khách Hàng — Bộ 2', slug:'kh-studio-b', dm:'khachhang', dang:'capdoi', gia:'', ghiChu:'Cô dâu chú rể chụp tại studio, phần 2', soAnh:36, anhNgoai:true},
-
-  /* ───── PRE WEDDING (29 ảnh) ───── */
-  {ten:'Pre-wedding Ngoại Cảnh', slug:'pw-ngoaicanh', dm:'prewedding', dang:'ngoaicanh', gia:'', ghiChu:'Ảnh thật chụp ngoại cảnh: vườn, biển, phố, hoàng hôn', soAnh:29, anhNgoai:true},
 ];
 
 /*==DATA-END==*/
@@ -1454,6 +1448,11 @@ const timVay = s => VAY.find(v=>v.slug===s);
 /* ────────── ảnh: vẽ bằng canvas rồi nhớ lại ────────── */
 function anhURL(v, n){
   if(v.anhRieng && v.anhRieng[n-1]) return v.anhRieng[n-1];
+  /* nguon: một mục gộp ảnh từ nhiều thư mục — [['ma-thu-muc', số ảnh], …] */
+  if(v.nguon){
+    let k = n;
+    for(const [tm, so] of v.nguon){ if(k <= so) return `./anh/${tm}/${k}.jpg`; k -= so; }
+  }
   if(v.anhNgoai || !DEMO) return `./anh/${v.slug}/${n}.jpg`;
   const key = v.slug+'|'+n;
   if(CACHE.has(key)) return CACHE.get(key);
